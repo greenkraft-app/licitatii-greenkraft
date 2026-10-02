@@ -208,6 +208,15 @@ def date_din_text(text):
 
 
 # ================================================================ clasificare
+# formule care apar in aproape orice anunt si ar duce la categorii gresite
+RX_FORMULE = re.compile(r"(?<![a-z])(in stoc|pe stoc|stoc disponibil|numar (de )?inventar|nr\.? (de )?inventar|"
+                        r"cu sediul( social)?|sediul social|obiecte de inventar de natura)(?![a-z])")
+
+
+def curata_formule(text):
+    return RX_FORMULE.sub(" ", norm(text))
+
+
 class Cuvinte:
     def __init__(self, data):
         self.cuvinte_cheie = data.get("cuvinte_cheie", [])
@@ -224,6 +233,7 @@ class Cuvinte:
         return list(dict.fromkeys(kw))
 
     def categorie(self, titlu, context=""):
+        titlu, context = curata_formule(titlu), curata_formule(context)
         for text in (titlu, titlu + " " + context):
             for c in self.categorii:
                 if potriveste(text, c.get("cuvinte", [])):
@@ -471,6 +481,10 @@ def _domeniu(u):
     return ".".join(h.split(".")[-2:])
 
 
+RX_TITLU_GENERIC = re.compile(r"^(vezi|vedeti|afisati|citeste|mai multe|detalii|click|apasa|liciteaza|"
+                              r"descarca|read more|more|view|details)\b")
+
+
 def extrage_linkuri(html, url_pagina, src):
     soup = BeautifulSoup(html, "html.parser")
     rx = re.compile(src["link_regex"], re.I) if src.get("link_regex") else None
@@ -516,6 +530,10 @@ def extrage_linkuri(html, url_pagina, src):
             bloc = p
         context = " ".join(bloc.get_text(" ", strip=True).split())[:700]
         titlu = c["titlu"] or context[:120]
+        if RX_TITLU_GENERIC.match(norm(titlu)):
+            h = bloc.find(["h1", "h2", "h3", "h4", "h5", "strong", "b"])
+            alt = " ".join(h.get_text(" ", strip=True).split()) if h else ""
+            titlu = alt if len(alt) >= 6 and not RX_TITLU_GENERIC.match(norm(alt)) else context[:120]
         if len(titlu) < 4:
             continue
         rezultat.append((u, titlu, context))
@@ -816,6 +834,14 @@ def intretinere(sb, cuv, cfg):
         c = cuv.categorie(r.get("titlu") or "", r.get("descriere") or "")
         if c != r.get("categorie"):
             schimbari.setdefault(c, []).append(r["id"])
+    # titluri generice salvate inainte ("Vedeti detalii") -> inceputul descrierii
+    for r in randuri:
+        if r["id"] in de_sters or not r.get("descriere"):
+            continue
+        if RX_TITLU_GENERIC.match(norm(r.get("titlu") or "")):
+            titlu_nou = re.sub(r"\s*(vezi|vedeti|vedeți|detalii|liciteaza)\b.*$", "", r["descriere"], flags=re.I)[:150].strip()
+            if len(titlu_nou) >= 6:
+                sb.update_in("lic_anunturi", [r["id"]], {"titlu": titlu_nou})
     if de_sters:
         _sterge_in(sb, "lic_anunturi", de_sters)
     for c, ids in schimbari.items():

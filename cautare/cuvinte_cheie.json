@@ -70,7 +70,25 @@
         "transformator",
         "motor electric",
         "tablou electric",
-        "iluminat"
+        "iluminat",
+        "iphone",
+        "ipad",
+        "macbook",
+        "apple!",
+        "samsung",
+        "huawei",
+        "xiaomi",
+        "smartphone",
+        "telefoane",
+        "tableta",
+        "notebook",
+        "playstation",
+        "consola",
+        "televizoare",
+        "camera foto",
+        "aparat foto",
+        "boxe!",
+        "imprimanta"
       ]
     },
     {
@@ -195,7 +213,13 @@
         "agricol",
         "cnc!",
         "instalati",
-        "echipamente de productie"
+        "echipamente de productie",
+        "unelt",
+        "scule!",
+        "masina de",
+        "masini de",
+        "dispozitiv",
+        "echipament de"
       ]
     },
     {
@@ -209,7 +233,6 @@
         "materiale",
         "produse finite",
         "obiecte de inventar",
-        "inventar",
         "palet"
       ]
     },
@@ -223,7 +246,6 @@
         "casa!",
         "case!",
         "vila",
-        "imobil",
         "cladire",
         "birou",
         "proprietat",
@@ -233,7 +255,6 @@
         "pensiune",
         "hotel",
         "ferma",
-        "fabrica",
         "parcare",
         "activ industrial",
         "depozit!",
@@ -243,7 +264,19 @@
         "constructie!",
         "constructii!",
         "spatiu!",
-        "spatii!"
+        "spatii!",
+        "fabrica!",
+        "fabrici!",
+        "fabricii!",
+        "imobil!",
+        "imobile!",
+        "imobilul!",
+        "imobilului!",
+        "imobiliar",
+        "pavilion",
+        "sediu!",
+        "spatiu comercial",
+        "spatii comerciale"
       ]
     }
   ]
