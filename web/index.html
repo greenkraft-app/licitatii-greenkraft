@@ -8,6 +8,7 @@
 <title>Licitații Green Kraft</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <style>
 :root{--verde:#1b5e20;--verde2:#2e7d32;--fond:#f4f6f4;--card:#fff;--text:#1d241f;--gri:#5f6b63;--linie:#e1e6e2;--galben:#f9a825;--rosu:#c62828}
 *{box-sizing:border-box}
@@ -166,6 +167,25 @@ th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--linie);verti
 
   <!-- SURSE -->
   <section id="tab-surse" class="ascuns">
+    <div class="panou">
+      <h3 style="margin:0 0 10px;font-size:16px">Adaugă o sursă nouă</h3>
+      <div class="filtre">
+        <div><label>Nume</label><input id="nsNume" placeholder="ex. Lichidator XYZ SPRL"></div>
+        <div><label>Grup</label><select id="nsGrup"></select></div>
+        <div><label>Ce anunțuri iau</label>
+          <select id="nsFiltru">
+            <option value="0">Toate anunțurile noi (site-uri mici, lichidatori)</option>
+            <option value="1">Doar cele cu cuvinte cheie (site-uri mari)</option>
+          </select></div>
+      </div>
+      <div style="margin-top:10px"><label style="font-size:12px;color:var(--gri);font-weight:600">Adresa paginii cu anunțuri (mai multe = câte una pe rând)</label>
+        <textarea id="nsUrl" rows="2" placeholder="https://www.exemplu.ro/licitatii/"></textarea></div>
+      <label style="display:flex;gap:6px;align-items:center;font-size:14px;margin:8px 0"><input id="nsJs" type="checkbox" style="width:auto"> Site dinamic (anunțurile apar abia după ce pagina se încarcă complet)</label>
+      <button class="btn" onclick="adaugaSursa()">Adaugă sursa</button>
+      <span id="nsMesaj" style="margin-left:10px;font-size:14px"></span>
+      <p style="font-size:13px;color:var(--gri);margin:10px 0 0">Pune adresa paginii unde site-ul listează anunțurile (ex. „Licitații”, „Vânzări active”), nu prima pagină.
+      Sursa se caută la următoarea rulare (cel mult 2 ore). La prima rulare anunțurile existente se salvează fără email.</p>
+    </div>
     <div class="panou" style="overflow-x:auto"><table id="tabelSurse"></table></div>
   </section>
 </main>
@@ -173,15 +193,16 @@ th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--linie);verti
 
 <script>
 /* ============ CONFIGURARE: completeaza cu datele proiectului Supabase ============ */
-const SUPABASE_URL = "https://jlzlsmgngwdbqkvbcyau.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpsemxzbWduZ3dkYnFrdmJjeWF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjE0MTQsImV4cCI6MjA5NDMzNzQxNH0.nQCfzZnr3WSu07-2-hn7GKkabxIs9JGBjfFENcccNwY";
+const CFG = window.LIC_CONFIG || {};
+const SUPABASE_URL = CFG.SUPABASE_URL || "https://jlzlsmgngwdbqkvbcyau.supabase.co";
+const SUPABASE_ANON_KEY = CFG.SUPABASE_ANON_KEY || "PUNE_AICI_CHEIA_ANON_PUBLIC";   // cheia sta in config.js
 /* ================================================================================= */
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const JUDETE = ["Alba","Arad","Arges","Bacau","Bihor","Bistrita-Nasaud","Botosani","Braila","Brasov","Bucuresti","Buzau","Calarasi","Caras-Severin","Cluj","Constanta","Covasna","Dambovita","Dolj","Galati","Giurgiu","Gorj","Harghita","Hunedoara","Ialomita","Iasi","Ilfov","Maramures","Mehedinti","Mures","Neamt","Olt","Prahova","Salaj","Satu Mare","Sibiu","Suceava","Teleorman","Timis","Tulcea","Valcea","Vaslui","Vrancea"];
-const CATEGORII = ["DEEE / Electronice","Fier & Metale","Auto / VSU","Utilaje / Industrial","Stocuri / Marfă","Imobiliare","Alte bunuri"];
-const CULORI = {"DEEE / Electronice":"#1565c0","Fier & Metale":"#6d4c41","Auto / VSU":"#c62828","Utilaje / Industrial":"#ef6c00","Stocuri / Marfă":"#6a1b9a","Imobiliare":"#00838f","Alte bunuri":"#757575"};
-const GRUPURI = ["1. Oficiale","2. Lichidatori","3. Case de avocatura","4. Agregatoare","5. Executori","6. Platforme industriale"];
+const CATEGORII = ["DEEE / Electronice","Fier & Metale","Servicii deșeuri","Auto / VSU","Utilaje / Industrial","Stocuri / Marfă","Imobiliare","Alte bunuri"];
+const CULORI = {"DEEE / Electronice":"#1565c0","Fier & Metale":"#6d4c41","Servicii deșeuri":"#558b2f","Auto / VSU":"#c62828","Utilaje / Industrial":"#ef6c00","Stocuri / Marfă":"#6a1b9a","Imobiliare":"#00838f","Alte bunuri":"#757575"};
+const GRUPURI = ["1. Oficiale","2. Lichidatori","3. Case de avocatura","4. Agregatoare","5. Executori","6. Platforme industriale","7. Adaugate din aplicatie"];
 const PAS = 60;
 
 let utilizator = null, favorite = {}, judeteAlese = new Set(), categorieAleasa = "", afisate = 0, temporizare = null;
@@ -331,8 +352,10 @@ async function incarca(maiMult = false){
 }
 
 async function numaraCategorii(){
-  const { data } = await aplicaFiltre(sb.from("lic_anunturi").select("categorie"), false).limit(5000);
-  const n = {}; (data || []).forEach(r => n[r.categorie] = (n[r.categorie] || 0) + 1);
+  // numaram exact pe server, cate o cerere pe categorie (fara limita de 1000 de randuri)
+  const rez = await Promise.all(CATEGORII.map(c =>
+    aplicaFiltre(sb.from("lic_anunturi").select("id", { count: "exact", head: true }), false).eq("categorie", c)));
+  const n = {}; CATEGORII.forEach((c, i) => n[c] = rez[i].count || 0);
   chipsCategorii(n);
 }
 
@@ -433,18 +456,61 @@ async function salveazaSetari(){
 }
 
 /* ---------------- surse ---------------- */
+async function adaugaSursa(){
+  const nume = $("nsNume").value.trim(), url = $("nsUrl").value.trim();
+  if (!nume || !/^https?:\/\//m.test(url)){ $("nsMesaj").innerHTML = `<span class="err">Completează numele și o adresă care începe cu http.</span>`; return; }
+  const { error } = await sb.from("lic_surse_extra").insert({ nume, url, grup: $("nsGrup").value,
+    filtru_cuvinte: $("nsFiltru").value === "1", js: $("nsJs").checked, adaugat_de: utilizator?.email || null });
+  if (error){ $("nsMesaj").innerHTML = `<span class="err">Eroare: ${esc(error.message)}</span>`; return; }
+  $("nsMesaj").innerHTML = `<span class="ok">Adăugată ✓ — se caută la următoarea rulare.</span>`;
+  $("nsNume").value = ""; $("nsUrl").value = ""; $("nsJs").checked = false;
+  incarcaSurse();
+}
+async function comutaSursa(sursaId, extraId, activ){
+  if (extraId){
+    await sb.from("lic_surse_extra").update({ activ }).eq("id", extraId);
+  } else {
+    const { data } = await sb.from("lic_setari").select("date").eq("id", 1).single();
+    const date = data?.date || {};
+    const oprite = new Set(date.surse_oprite || []);
+    activ ? oprite.delete(sursaId) : oprite.add(sursaId);
+    date.surse_oprite = [...oprite];
+    await sb.from("lic_setari").update({ date }).eq("id", 1);
+    setariCurente = date;
+  }
+}
+async function stergeSursa(extraId){
+  if (!confirm("Ștergi această sursă? Anunțurile deja găsite rămân în aplicație.")) return;
+  await sb.from("lic_surse_extra").delete().eq("id", extraId);
+  await sb.from("lic_surse_stare").delete().eq("sursa_id", "extra_" + extraId);
+  incarcaSurse();
+}
 async function incarcaSurse(){
-  const { data, error } = await sb.from("lic_surse_stare").select("*").order("grup").order("nume");
-  if (error){ $("tabelSurse").innerHTML = `<tr><td class="err">${esc(error.message)}</td></tr>`; return; }
-  $("tabelSurse").innerHTML = `<tr><th>Sursă</th><th>Grup</th><th>Rezultate</th><th>Stare</th><th>Ultima căutare</th></tr>` +
-    (data || []).map(s => {
-      const cls = !String(s.stare).startsWith("OK") ? "err" : (s.rezultate ? "ok" : "atent");
-      const txt = !String(s.stare).startsWith("OK") ? s.stare : (s.rezultate ? "OK" : "OK – 0 rezultate");
-      return `<tr><td>${esc(s.nume)}</td><td>${esc((s.grup||"").replace(/^\d\.\s*/,""))}</td><td>${s.rezultate ?? ""}</td>
-        <td class="${cls}">${esc(txt)}</td><td>${s.ultima_rulare ? new Date(s.ultima_rulare).toLocaleString("ro-RO") : ""}</td></tr>`;
+  const g = $("nsGrup"); if (!g.options.length) GRUPURI.forEach(x => g.insertAdjacentHTML("beforeend", `<option value="${esc(x)}" ${x.startsWith("7.")?"selected":""}>${esc(x.replace(/^\d\.\s*/,""))}</option>`));
+  const [st, ex, se] = await Promise.all([
+    sb.from("lic_surse_stare").select("*"),
+    sb.from("lic_surse_extra").select("*"),
+    sb.from("lic_setari").select("date").eq("id", 1).single()]);
+  if (st.error){ $("tabelSurse").innerHTML = `<tr><td class="err">${esc(st.error.message)}</td></tr>`; return; }
+  const oprite = new Set(se.data?.date?.surse_oprite || []);
+  const extra = {}; (ex.data || []).forEach(x => extra["extra_" + x.id] = x);
+  const randuri = (st.data || []).map(s => ({ ...s, extra: extra[s.sursa_id] }));
+  Object.entries(extra).forEach(([sid, x]) => { if (!randuri.find(r => r.sursa_id === sid))
+    randuri.push({ sursa_id: sid, nume: x.nume, grup: x.grup, rezultate: null, stare: "în așteptare", extra: x }); });
+  randuri.sort((a, b) => (a.grup || "").localeCompare(b.grup || "") || (a.nume || "").localeCompare(b.nume || ""));
+  $("tabelSurse").innerHTML = `<tr><th>Activă</th><th>Sursă</th><th>Grup</th><th>Rezultate</th><th>Stare</th><th>Ultima căutare</th><th></th></tr>` +
+    randuri.map(s => {
+      const activ = s.extra ? s.extra.activ : !oprite.has(s.sursa_id);
+      const stTxt = String(s.stare || "");
+      const cls = stTxt === "în așteptare" ? "atent" : (!stTxt.startsWith("OK") ? "err" : (s.rezultate ? "ok" : "atent"));
+      const txt = stTxt === "în așteptare" ? "Se caută la următoarea rulare" : (!stTxt.startsWith("OK") ? stTxt : (s.rezultate ? "OK" : "OK – 0 rezultate"));
+      const urlTxt = s.extra ? `<div style="font-size:12px;color:var(--gri);word-break:break-all">${esc(s.extra.url.split("\n")[0])}</div>` : "";
+      return `<tr><td><input type="checkbox" style="width:auto" ${activ?"checked":""} onchange="comutaSursa('${esc(s.sursa_id)}', ${s.extra ? s.extra.id : "null"}, this.checked)"></td>
+        <td>${esc(s.nume)}${urlTxt}</td><td>${esc((s.grup||"").replace(/^\d\.\s*/,""))}</td><td>${s.rezultate ?? ""}</td>
+        <td class="${cls}">${esc(txt)}</td><td>${s.ultima_rulare ? new Date(s.ultima_rulare).toLocaleString("ro-RO") : ""}</td>
+        <td>${s.extra ? `<button class="btn sec" style="padding:4px 10px;font-size:12px" onclick="stergeSursa(${s.extra.id})">Șterge</button>` : ""}</td></tr>`;
     }).join("");
 }
-
 porneste();
 </script>
 </body>

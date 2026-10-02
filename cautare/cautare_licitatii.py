@@ -173,14 +173,14 @@ def inchide_browser():
 
 
 # ---------------------------------------------------------------- date calendaristice in text
-LUNI = {"ian": 1, "feb": 2, "mar": 3, "apr": 4, "mai": 5, "may": 5, "iun": 6, "jun": 6, "iul": 7, "jul": 7,
+LUNI = {"ian": 1, "jan": 1, "feb": 2, "mar": 3, "apr": 4, "mai": 5, "may": 5, "iun": 6, "jun": 6, "iul": 7, "jul": 7,
         "aug": 8, "sep": 9, "oct": 10, "noi": 11, "nov": 11, "dec": 12}
 RX_DATE = [
     (re.compile(r"(?<!\d)(\d{1,2})[\./\-](\d{1,2})[\./\-](20\d\d)(?!\d)"), "dmy"),
     (re.compile(r"(?<!\d)(20\d\d)[\./\-](\d{1,2})[\./\-](\d{1,2})(?!\d)"), "ymd"),
     (re.compile(r"(?<![a-z0-9])(\d{1,2})\s+([a-z]{3})[a-z]*\.?,?\s+(20\d\d)"), "dMy"),
     (re.compile(r"(?<![a-z0-9])([a-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(20\d\d)"), "Mdy"),
-    (re.compile(r"(?<!\d)(\d{1,2})-([a-z]{3})-(\d\d)(?!\d)"), "dMy2"),
+    (re.compile(r"(?<!\d)(\d{1,2})-([a-z]{3})\.?-(\d\d)(?!\d)"), "dMy2"),
 ]
 
 
@@ -793,6 +793,36 @@ class Supabase:
                 raise RuntimeError(f"Supabase {tabel}: {r.status_code} {r.text[:300]}")
 
 
+def _sterge_in(sb, tabel, ids):
+    for i in range(0, len(ids), 150):
+        r = requests.delete(sb.url + tabel, params={"id": "in.(" + ",".join(ids[i:i + 150]) + ")"},
+                            timeout=120, headers={**sb.h, "Prefer": "return=minimal"})
+        if r.status_code >= 300:
+            raise RuntimeError(f"Supabase {tabel}: {r.status_code} {r.text[:300]}")
+
+
+def intretinere(sb, cuv, cfg):
+    """reclasifica toate anunturile dupa cuvintele actuale si sterge anunturile vechi (nu si pe cele urmarite)"""
+    randuri = sb.select("lic_anunturi", {"select": "id,titlu,descriere,categorie"})
+    fav = {r["anunt_id"] for r in sb.select("lic_favorite", {"select": "anunt_id"})}
+    limita = limita_data(cfg)
+    de_sters, schimbari = [], {}
+    for r in randuri:
+        text = (r.get("titlu") or "") + " " + (r.get("descriere") or "")
+        d = date_din_text(text)
+        if d and max(d) < limita and r["id"] not in fav:
+            de_sters.append(r["id"])
+            continue
+        c = cuv.categorie(r.get("titlu") or "", r.get("descriere") or "")
+        if c != r.get("categorie"):
+            schimbari.setdefault(c, []).append(r["id"])
+    if de_sters:
+        _sterge_in(sb, "lic_anunturi", de_sters)
+    for c, ids in schimbari.items():
+        sb.update_in("lic_anunturi", ids, {"categorie": c})
+    log(f"Intretinere: {sum(len(v) for v in schimbari.values())} reclasificate, {len(de_sters)} vechi sterse")
+
+
 def cod_unic(cheie):
     return hashlib.md5(cheie.encode("utf-8")).hexdigest()[:24]
 
@@ -856,9 +886,25 @@ def main():
     cuv = Cuvinte(cuv_data)
     cfg = {"zile_in_urma": int(setari.get("zile_in_urma") or surse_cfg.get("zile_in_urma", 60))}
 
+    # surse adaugate / oprite din aplicatia web
+    oprite = set(setari.get("surse_oprite") or [])
+    if sb:
+        try:
+            for x in sb.select("lic_surse_extra", {"select": "*", "activ": "eq.true"}):
+                urls = [u.strip() for u in (x.get("url") or "").splitlines() if u.strip().startswith("http")]
+                if urls:
+                    surse_cfg["surse"].append({
+                        "id": f"extra_{x['id']}", "grup": x.get("grup") or "7. Adaugate din aplicatie",
+                        "nume": x.get("nume") or urls[0], "url": urls, "activ": True,
+                        "filtru_cuvinte": bool(x.get("filtru_cuvinte")), "js": bool(x.get("js"))})
+        except Exception as ex:
+            log(f"Nu am putut citi sursele adaugate din aplicatie: {ex}")
+
     s = sesiune()
     toate, erori, stare = [], [], []
     for src in surse_cfg["surse"]:
+        if src["id"] in oprite and doar is None:
+            continue
         if doar is not None:
             if src["id"] not in doar:
                 continue
@@ -890,7 +936,10 @@ def main():
             continue
         ctx = (it.get("context") or "") + " " + (it.get("descriere") or "")
         it["cod"] = cod
-        it["categorie"] = cuv.categorie(it["titlu"], ctx)
+        it["desc_db"] = ((it.get("context") or it.get("descriere") or "")[:600]) or None
+        if it["desc_db"] == it["titlu"]:
+            it["desc_db"] = None
+        it["categorie"] = cuv.categorie(it["titlu"], it["desc_db"] or "")
         it["judet"] = detecteaza_judet(it["titlu"], it.get("locatie"), it.get("autoritate"), ctx)
         tel, mail = contacte_din_text(ctx)
         if tel:
@@ -941,7 +990,7 @@ def main():
         randuri.append({
             "id": it["cod"], "cheie": it["id"][:500], "sursa_id": it["sursa_id"], "sursa": it["site"],
             "grup": it.get("grup"), "categorie": it["categorie"], "titlu": it["titlu"][:500],
-            "link": it["link"], "descriere": (it.get("descriere") or "")[:600] or None,
+            "link": it["link"], "descriere": it.get("desc_db"),
             "autoritate": it.get("autoritate"), "valoare": it.get("valoare"), "termen": it.get("termen"),
             "publicat": it.get("publicat"), "data_publicare": data_iso(it.get("publicat")),
             "judet": it.get("judet"), "telefon": it.get("telefon"), "email": it.get("email"),
@@ -955,6 +1004,10 @@ def main():
          "initiata": (src["id"] in initiate) or st == "OK", "ultima_rulare": acum, "rezultate": n, "stare": st}
         for src, n, st in stare])
     log(f"Salvat in Supabase: {len(randuri)} noi, {len(vechi_ids)} actualizate")
+    try:
+        intretinere(sb, cuv, cfg)
+    except Exception as ex:
+        log(f"EROARE intretinere: {ex}")
 
     # email: doar anunturi noi, de la surse deja initiate (sau cu data), filtrate dupa setari
     if not setari.get("email_activ", True):
