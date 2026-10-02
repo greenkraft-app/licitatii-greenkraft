@@ -129,6 +129,11 @@ def descarca(s, url, js=False, timeout=60, gol_la_404=False):
         r = s.get(url, timeout=timeout, verify=False)
     if gol_la_404 and r.status_code == 404:
         return ""
+    if r.status_code in (403, 429, 503):
+        try:
+            return descarca_browser(url)        # unele site-uri blocheaza cererile simple
+        except Exception:
+            pass
     r.raise_for_status()
     if not r.encoding or r.encoding.lower() == "iso-8859-1":
         r.encoding = r.apparent_encoding
@@ -434,7 +439,8 @@ def citr(cfg, s, src, cuv):
 
 
 # ================================================================ sursa generica (orice site)
-NAV_RX = re.compile(r"menu|meniu|nav|footer|header|breadcrumb|sidebar|widget|social|cookie|share|login", re.I)
+NAV_RX = re.compile(r"(^|[\s_-])(nav|navbar|navigation|menu|meniu|footer|header|breadcrumbs?|sidebar|"
+                    r"social|cookie|cookies|share|login|topbar)([\s_-]|$)", re.I)
 URL_IGNORAT = re.compile(
     r"/(category|categorie|tag|author|page|feed|wp-login|contact|despre|about|cookie|politica|privacy|"
     r"termeni|gdpr|login|cont|account|register|inregistrare|cart|cos)(/|$|\?)|mailto:|tel:|javascript:|"
@@ -442,7 +448,10 @@ URL_IGNORAT = re.compile(
 
 
 def _in_navigatie(tag):
-    for p in tag.parents:
+    parinti = list(tag.parents)
+    if any(p.name == "article" for p in parinti):     # linkurile din articole sunt continut
+        return False
+    for p in parinti:
         if p.name in ("nav", "header", "footer"):
             return True
         ident = " ".join(p.get("class", [])) + " " + (p.get("id") or "")
@@ -950,6 +959,9 @@ def main():
     # email: doar anunturi noi, de la surse deja initiate (sau cu data), filtrate dupa setari
     if not setari.get("email_activ", True):
         return
+    if not existente:
+        log("Prima rulare: anunturile au fost salvate in aplicatie, fara email.")
+        return
     de_trimis = [it for it in noi if it["sursa_id"] in initiate or it.get("are_data")]
     judete = set(setari.get("judete_notificari") or [])
     if judete:
@@ -967,13 +979,21 @@ def main():
         for it in de_trimis:
             pe_cat[it["categorie"]] = pe_cat.get(it["categorie"], 0) + 1
         rezumat = ", ".join(f"{c}: {pe_cat[c]}" for c in cuv.ordine if c in pe_cat)
-        html = html_raport(de_trimis, erori, f"{len(de_trimis)} licitatii noi", cuv)
+        total = len(de_trimis)
+        ordine = {c: i for i, c in enumerate(cuv.ordine)}
+        de_trimis = sorted(de_trimis, key=lambda x: ordine.get(x["categorie"], 99))[:300]
+        titlu_email = f"{total} licitatii noi" + (f" (primele 300 aici, restul in aplicatie)" if total > 300 else "")
+        html = html_raport(de_trimis, erori, titlu_email, cuv)
         app = os.environ.get("APP_URL")
         if app:
             html = html.replace("</h2>", f'</h2><p><a href="{escape(app)}" style="font-size:15px">'
                                           f'Deschide aplicatia de licitatii</a></p>', 1)
-        trimite_email(dest, f"[Licitatii] {len(de_trimis)} noi ({rezumat})"[:250], html)
-        log(f"Email trimis catre {', '.join(dest)}")
+        try:
+            trimite_email(dest, f"[Licitatii] {total} noi ({rezumat})"[:250], html)
+            log(f"Email trimis catre {', '.join(dest)}")
+        except Exception as ex:
+            log(f"EROARE EMAIL (anunturile sunt salvate in aplicatie): {ex}. "
+                f"Verifica secretele SMTP_PAROLA / SMTP_USER / SMTP_SERVER in GitHub.")
 
 
 if __name__ == "__main__":
