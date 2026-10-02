@@ -730,11 +730,25 @@ def completeaza_detalii(s, it):
 
 
 # ================================================================ Supabase
+def normalizeaza_url_supabase(url):
+    """accepta orice forma copiata: https://REF.supabase.co, cu /rest/v1, sau link de dashboard"""
+    u = url.strip().strip('"').strip("'").rstrip("/")
+    m = re.search(r"https?://([a-z0-9]{20})\.supabase\.co", u)
+    if m:
+        return f"https://{m.group(1)}.supabase.co"
+    m = re.search(r"/project/([a-z0-9]{20})", u) or re.fullmatch(r"([a-z0-9]{20})", u)
+    if m:
+        return f"https://{m.group(1)}.supabase.co"
+    u = re.sub(r"/rest/v1/?$", "", u)
+    return u if u.startswith("http") else "https://" + u
+
+
 class Supabase:
     def __init__(self, url, cheie):
-        # acceptam si adresa copiata cu "/rest/v1" la final
-        baza = re.sub(r"/rest/v1/?$", "", url.strip().rstrip("/"))
+        baza = normalizeaza_url_supabase(url)
         self.url = baza + "/rest/v1/"
+        gazda = urlparse(baza).netloc
+        log(f"Supabase: {gazda[:4]}...{gazda[-16:]}")
         self.h = {"apikey": cheie, "Authorization": f"Bearer {cheie}", "Content-Type": "application/json"}
 
     def select(self, tabel, params):
