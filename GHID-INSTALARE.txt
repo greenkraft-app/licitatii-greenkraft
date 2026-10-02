@@ -1,0 +1,106 @@
+LICITATII GREEN KRAFT - APLICATIE WEB (telefon + calculator)
+==============================================================
+
+Cum functioneaza:
+  - GitHub ruleaza cautarea la fiecare 2 ore, in cloud (calculatorul poate fi oprit).
+  - Rezultatele se salveaza in Supabase (proiectul greenkraft-app, tabele noi "lic_...").
+  - Aplicatia web (Vercel) le afiseaza, cu filtre, licitatii urmarite, contacte, setari.
+  - Emailul cu licitatiile noi se trimite in continuare.
+
+Ai nevoie de ~30 de minute, o singura data.
+
+----------------------------------------------------------------
+PASUL 1 - SUPABASE (baza de date)
+----------------------------------------------------------------
+1. Intra pe supabase.com > proiectul greenkraft-app.
+2. Meniul din stanga: SQL Editor > New query.
+3. Deschide fisierul supabase.sql cu Notepad, copiaza tot, lipeste in Supabase, apasa Run.
+   Trebuie sa apara "Success". (Creeaza doar tabele noi, nu atinge nimic din aplicatia Greenkraft.)
+4. Authentication > Users > Add user > Create new user:
+   pune emailul si parola cu care vrei sa intri in aplicatie (bifeaza "Auto Confirm User").
+   Repeta pentru fiecare coleg care trebuie sa aiba acces.
+   (Daca folosesti deja conturi in aplicatia Greenkraft, merg si acelea.)
+5. Project Settings > API (sau "API Keys"). Noteaza:
+     - Project URL                   (ex. https://jlzlsmgngwdbqkvbcyau.supabase.co)
+     - cheia "anon" / "public"       -> merge in aplicatia web
+     - cheia "service_role" (secret) -> merge DOAR in GitHub Secrets, nu o pune nicaieri altundeva
+
+----------------------------------------------------------------
+PASUL 2 - CHEIA IN APLICATIA WEB
+----------------------------------------------------------------
+1. Deschide web\index.html cu Notepad.
+2. Cauta randurile:
+     const SUPABASE_URL = "https://jlzlsmgngwdbqkvbcyau.supabase.co";
+     const SUPABASE_ANON_KEY = "PUNE_AICI_CHEIA_ANON_PUBLIC";
+   Verifica adresa si pune cheia "anon" in locul textului PUNE_AICI_CHEIA_ANON_PUBLIC. Salveaza.
+   (Cheia "anon" poate sta in pagina: fara cont si parola nu se vede nimic.)
+
+----------------------------------------------------------------
+PASUL 3 - GITHUB (cautarea automata)
+----------------------------------------------------------------
+1. GitHub Desktop > File > New repository:
+     Name: licitatii-greenkraft   -> Create repository.
+2. Copiaza in folderul nou TOT continutul din folderul licitatii-greenkraft primit
+   (inclusiv folderul ascuns .github - in Windows Explorer: View > Show > Hidden items).
+3. In GitHub Desktop: scrie un mesaj (ex. "prima versiune") > Commit to main > Publish repository.
+   IMPORTANT: debifeaza "Keep this code private" (depozit PUBLIC).
+   Motiv: la depozitele publice GitHub Actions e gratuit nelimitat; la cele private ai doar
+   2.000 minute/luna, iar cautarea are nevoie de ~4.000. Parolele NU sunt in cod (stau in Secrets).
+4. Pe github.com, in depozit: Settings > Secrets and variables > Actions > New repository secret.
+   Adauga pe rand:
+     SUPABASE_URL          = Project URL din Pasul 1
+     SUPABASE_SERVICE_KEY  = cheia service_role din Pasul 1
+     SMTP_PAROLA           = parola emailului office@greenkraft.ro
+     SMTP_SERVER           = mail.greenkraft.ro   (doar daca e altul, altfel poti sari)
+     SMTP_PORT             = 465                  (optional)
+     SMTP_USER             = office@greenkraft.ro (optional)
+     APP_URL               = adresa aplicatiei din Pasul 4 (o adaugi dupa)
+5. Tab-ul Actions > (daca intreaba, apasa "I understand... enable") > "Cautare licitatii"
+   > Run workflow > Run workflow. Dureaza 10-20 minute.
+   Bifa verde = a mers. Daca e rosu, deschide-l, copiaza ultimele randuri si trimite-mi-le.
+
+Prima rulare NU trimite email cu toate anunturile vechi de la lichidatori - le salveaza doar
+in aplicatie. De la a doua rulare primesti pe email ce apare nou.
+
+----------------------------------------------------------------
+PASUL 4 - VERCEL (aplicatia web)
+----------------------------------------------------------------
+1. vercel.com > Add New... > Project > Import la depozitul licitatii-greenkraft.
+2. La "Root Directory" apasa Edit si alege folderul: web
+   Framework Preset: Other. Apasa Deploy.
+3. Primesti o adresa, ex. https://licitatii-greenkraft.vercel.app
+   Pune-o in GitHub Secrets ca APP_URL (Pasul 3.4) - apare ca link in emailuri.
+
+----------------------------------------------------------------
+PASUL 5 - PE TELEFON
+----------------------------------------------------------------
+Deschide adresa in Chrome (Android) sau Safari (iPhone), intra cu contul,
+apoi meniul browserului > "Adauga pe ecranul de pornire". Apare ca o aplicatie.
+
+----------------------------------------------------------------
+PASUL 6 - OPRESTE VARIANTA VECHE DE PE CALCULATOR
+----------------------------------------------------------------
+In folderul vechi CautareLicitatii: dublu-click pe 3_OPRESTE_AUTOMAT.bat,
+altfel primesti emailuri de doua ori.
+
+----------------------------------------------------------------
+CE POTI FACE IN APLICATIE
+----------------------------------------------------------------
+  Licitatii : cauta in titlu; perioada (24h / 7 / 30 / 60 zile / an / interval ales);
+              judet (unul sau mai multe); tip sursa; doar cele cu telefon/email;
+              doar cele aparute azi; categorii (DEEE, Fier, Auto/VSU, Utilaje, Stocuri,
+              Imobiliare, Alte bunuri). Filtrele se tin minte pe fiecare dispozitiv.
+  ☆ / ★     : pune o licitatie la Urmarite; acolo poti scrie notite (ex. "am sunat").
+              Lista de urmarite e comuna pentru toata echipa.
+  Telefon   : apasa pe numar ca sa suni, pe email ca sa scrii.
+  Setari    : cate zile in urma cauta robotul; emailul (pornit/oprit, destinatari);
+              judete si categorii pentru email; cuvinte cheie in plus; cuvinte de exclus.
+  Surse     : ce site a mers la ultima cautare si cate rezultate a dat.
+
+Note:
+  - Telefonul, emailul si judetul sunt extrase automat din textul anuntului; cand anuntul
+    nu le contine (de ex. SEAP, TED), campurile raman goale.
+  - Serverele GitHub sunt in afara Romaniei; daca vreun site romanesc le blocheaza,
+    il vezi cu EROARE in tab-ul Surse si il rezolvam.
+  - Modificarile de surse si cuvinte de baza se fac in cautare\surse.json si
+    cautare\cuvinte_cheie.json (apoi Commit + Push in GitHub Desktop).

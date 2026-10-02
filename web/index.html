@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b5e20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Licitații Green Kraft</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--verde:#1b5e20;--verde2:#2e7d32;--fond:#f4f6f4;--card:#fff;--text:#1d241f;--gri:#5f6b63;--linie:#e1e6e2;--galben:#f9a825;--rosu:#c62828}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--fond);color:var(--text);font-size:15px}
+a{color:var(--verde2)}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid #c9d1cb;border-radius:8px;background:#fff;color:var(--text);width:100%}
+.ascuns{display:none!important}
+header{background:var(--verde);color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.bara{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.bara h1{font-size:18px;margin:0;flex:1;white-space:nowrap}
+.bara button{background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:6px 10px;font-size:13px}
+nav{max-width:1100px;margin:0 auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto}
+nav button{background:none;border:none;color:#cfe8d0;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-weight:600}
+nav button.activ{color:#fff;border-bottom-color:#fff}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.panou{background:var(--card);border:1px solid var(--linie);border-radius:12px;padding:14px;margin-bottom:14px}
+.filtre{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.filtre label{font-size:12px;color:var(--gri);display:block;margin-bottom:4px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{border:1px solid #c9d1cb;background:#fff;border-radius:20px;padding:5px 11px;font-size:13px}
+.chip.activ{background:var(--verde2);border-color:var(--verde2);color:#fff}
+.chip small{opacity:.75}
+.multi{position:relative}
+.multi>button{width:100%;text-align:left;background:#fff;border:1px solid #c9d1cb;border-radius:8px;padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.multi .lista{position:absolute;z-index:20;top:100%;left:0;right:0;background:#fff;border:1px solid #c9d1cb;border-radius:8px;max-height:280px;overflow:auto;box-shadow:0 6px 16px rgba(0,0,0,.12);padding:6px}
+.multi .lista label{display:flex;gap:8px;align-items:center;padding:4px 6px;font-size:14px;color:var(--text);font-weight:400;margin:0}
+.multi .lista input{width:auto}
+.info{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 10px;color:var(--gri);font-size:13px;gap:8px;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid var(--linie);border-left:5px solid #9e9e9e;border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative}
+.card .sus{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px;padding-right:40px}
+.eticheta{font-size:11px;font-weight:700;padding:3px 7px;border-radius:5px;background:#eceff1;color:#37474f}
+.card h3{margin:2px 0 6px;font-size:16px;line-height:1.3}
+.card h3 a{color:var(--text);text-decoration:none}
+.card h3 a:hover{text-decoration:underline}
+.detalii{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--gri)}
+.detalii b{color:var(--text);font-weight:600}
+.desc{font-size:13px;color:var(--gri);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.contact{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.contact a{font-size:13px;text-decoration:none;background:#e8f5e9;color:var(--verde);padding:5px 10px;border-radius:6px;font-weight:600}
+.stea{position:absolute;top:8px;right:8px;background:none;border:none;font-size:26px;line-height:1;color:#bdbdbd;padding:4px}
+.stea.da{color:var(--galben)}
+.nota{margin-top:8px}
+.nota textarea{min-height:54px;font-size:14px}
+.nou{background:#fff3e0;color:#e65100}
+.btn{background:var(--verde2);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:600}
+.btn.sec{background:#fff;color:var(--verde2);border:1px solid var(--verde2)}
+.login{max-width:360px;margin:12vh auto;background:#fff;border-radius:14px;padding:26px;border:1px solid var(--linie)}
+.login h2{margin:0 0 4px;color:var(--verde)}
+.login p{color:var(--gri);margin:0 0 18px;font-size:14px}
+.login input{margin-bottom:10px}
+.eroare{color:var(--rosu);font-size:14px;margin-top:8px}
+.grila{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px}
+.grila label{display:flex;gap:6px;align-items:center;font-size:14px}
+.grila input{width:auto}
+.setare{margin-bottom:18px}
+.setare>label{font-weight:700;display:block;margin-bottom:6px}
+.setare .ajutor{font-size:13px;color:var(--gri);margin:-2px 0 8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--linie);vertical-align:top}
+.ok{color:var(--verde2);font-weight:600}.err{color:var(--rosu)}.atent{color:#e65100}
+.gol{text-align:center;color:var(--gri);padding:30px 10px}
+@media (max-width:600px){main{padding:10px}.card h3{font-size:15px}.bara h1{font-size:16px}}
+</style>
+</head>
+<body>
+
+<!-- ====================== LOGIN ====================== -->
+<div id="ecranLogin" class="login ascuns">
+  <h2>Licitații Green Kraft</h2>
+  <p>Intră cu contul tău.</p>
+  <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
+  <input id="loginParola" type="password" placeholder="Parola" autocomplete="current-password">
+  <button class="btn" style="width:100%" onclick="login()">Intră</button>
+  <div id="loginEroare" class="eroare"></div>
+</div>
+
+<!-- ====================== APLICATIE ====================== -->
+<div id="ecranApp" class="ascuns">
+<header>
+  <div class="bara"><h1>Licitații Green Kraft</h1><button onclick="logout()">Ieșire</button></div>
+  <nav>
+    <button data-tab="licitatii" class="activ" onclick="tab('licitatii')">Licitații</button>
+    <button data-tab="favorite" onclick="tab('favorite')">Urmărite <span id="nrFav"></span></button>
+    <button data-tab="setari" onclick="tab('setari')">Setări</button>
+    <button data-tab="surse" onclick="tab('surse')">Surse</button>
+  </nav>
+</header>
+
+<main>
+  <!-- LICITATII -->
+  <section id="tab-licitatii">
+    <div class="panou">
+      <div class="filtre">
+        <div><label>Caută în titlu</label><input id="fText" type="search" placeholder="ex. frigidere, fier, Dacia" oninput="incarcaIntarziat()"></div>
+        <div><label>Perioadă</label>
+          <select id="fPerioada" onchange="schimbaPerioada()">
+            <option value="1">Ultimele 24 de ore</option><option value="7">Ultimele 7 zile</option>
+            <option value="30">Ultimele 30 de zile</option><option value="60" selected>Ultimele 60 de zile</option>
+            <option value="365">Ultimul an</option><option value="custom">Interval ales…</option>
+          </select></div>
+        <div id="fInterval" class="ascuns" style="display:flex;gap:6px">
+          <div style="flex:1"><label>De la</label><input id="fDeLa" type="date" onchange="incarca()"></div>
+          <div style="flex:1"><label>Până la</label><input id="fPanaLa" type="date" onchange="incarca()"></div>
+        </div>
+        <div><label>Județ</label><div class="multi" id="mJudete"></div></div>
+        <div><label>Tip sursă</label>
+          <select id="fGrup" onchange="incarca()"><option value="">Toate sursele</option></select></div>
+        <div><label>Afișează</label>
+          <select id="fExtra" onchange="incarca()">
+            <option value="">Toate</option><option value="contact">Doar cu telefon/email</option>
+            <option value="noi">Apărute azi</option>
+          </select></div>
+      </div>
+      <div class="chips" id="chipsCategorii"></div>
+    </div>
+    <div class="info"><span id="infoRezultate">Se încarcă…</span><button class="btn sec" onclick="reseteazaFiltre()">Resetează filtrele</button></div>
+    <div id="listaLicitatii"></div>
+    <div style="text-align:center;margin:14px 0"><button id="btnMaiMult" class="btn sec ascuns" onclick="incarca(true)">Încarcă mai multe</button></div>
+  </section>
+
+  <!-- FAVORITE -->
+  <section id="tab-favorite" class="ascuns">
+    <div class="info"><span id="infoFav"></span></div>
+    <div id="listaFavorite"></div>
+  </section>
+
+  <!-- SETARI -->
+  <section id="tab-setari" class="ascuns">
+    <div class="panou">
+      <p style="margin-top:0;color:var(--gri);font-size:14px">Filtrele din pagina „Licitații” se aplică imediat, doar pe ecran.
+      Setările de aici spun ce caută robotul automat (la fiecare 2 ore) și ce primești pe email.</p>
+      <div class="setare"><label>Câte zile în urmă caută robotul</label>
+        <input id="sZile" type="number" min="1" max="365" style="max-width:120px"></div>
+      <div class="setare"><label>Email cu licitațiile noi</label>
+        <div class="grila"><label><input id="sEmailActiv" type="checkbox"> Trimite email</label></div></div>
+      <div class="setare"><label>Destinatari email</label>
+        <div class="ajutor">Separați prin virgulă.</div>
+        <input id="sDest" placeholder="office@greenkraft.ro, alt@email.ro"></div>
+      <div class="setare"><label>Județe pentru email</label>
+        <div class="ajutor">Nebifat nimic = toate județele. Anunțurile fără județ detectat se trimit mereu.</div>
+        <div class="grila" id="sJudete"></div></div>
+      <div class="setare"><label>Categorii pentru email</label>
+        <div class="ajutor">Nebifat nimic = toate categoriile.</div>
+        <div class="grila" id="sCategorii"></div></div>
+      <div class="setare"><label>Cuvinte cheie în plus</label>
+        <div class="ajutor">Câte unul pe rând. Se caută și pe SEAP / TED. Ex.: deseu de cupru</div>
+        <textarea id="sExtra" rows="4"></textarea></div>
+      <div class="setare"><label>Cuvinte de exclus</label>
+        <div class="ajutor">Câte unul pe rând. Anunțurile care le au în titlu sunt ignorate.</div>
+        <textarea id="sExcluse" rows="3"></textarea></div>
+      <button class="btn" onclick="salveazaSetari()">Salvează setările</button>
+      <span id="setariMesaj" style="margin-left:10px;font-size:14px"></span>
+    </div>
+  </section>
+
+  <!-- SURSE -->
+  <section id="tab-surse" class="ascuns">
+    <div class="panou" style="overflow-x:auto"><table id="tabelSurse"></table></div>
+  </section>
+</main>
+</div>
+
+<script>
+/* ============ CONFIGURARE: completeaza cu datele proiectului Supabase ============ */
+const SUPABASE_URL = "https://jlzlsmgngwdbqkvbcyau.supabase.co";
+const SUPABASE_ANON_KEY = "PUNE_AICI_CHEIA_ANON_PUBLIC";
+/* ================================================================================= */
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const JUDETE = ["Alba","Arad","Arges","Bacau","Bihor","Bistrita-Nasaud","Botosani","Braila","Brasov","Bucuresti","Buzau","Calarasi","Caras-Severin","Cluj","Constanta","Covasna","Dambovita","Dolj","Galati","Giurgiu","Gorj","Harghita","Hunedoara","Ialomita","Iasi","Ilfov","Maramures","Mehedinti","Mures","Neamt","Olt","Prahova","Salaj","Satu Mare","Sibiu","Suceava","Teleorman","Timis","Tulcea","Valcea","Vaslui","Vrancea"];
+const CATEGORII = ["DEEE / Electronice","Fier & Metale","Auto / VSU","Utilaje / Industrial","Stocuri / Marfă","Imobiliare","Alte bunuri"];
+const CULORI = {"DEEE / Electronice":"#1565c0","Fier & Metale":"#6d4c41","Auto / VSU":"#c62828","Utilaje / Industrial":"#ef6c00","Stocuri / Marfă":"#6a1b9a","Imobiliare":"#00838f","Alte bunuri":"#757575"};
+const GRUPURI = ["1. Oficiale","2. Lichidatori","3. Case de avocatura","4. Agregatoare","5. Executori","6. Platforme industriale"];
+const PAS = 60;
+
+let utilizator = null, favorite = {}, judeteAlese = new Set(), categorieAleasa = "", afisate = 0, temporizare = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function stocheaza(k, v){ try{ localStorage.setItem("lic_"+k, JSON.stringify(v)); }catch(e){} }
+function citeste(k, d){ try{ const v = localStorage.getItem("lic_"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function zi(d){ return d.toISOString().slice(0,10); }
+function fmtData(iso){ if(!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString("ro-RO"); }
+
+/* ---------------- autentificare ---------------- */
+async function porneste(){
+  const { data } = await sb.auth.getSession();
+  if (data.session){ utilizator = data.session.user; arataApp(); } else { $("ecranLogin").classList.remove("ascuns"); }
+}
+async function login(){
+  $("loginEroare").textContent = "";
+  const { data, error } = await sb.auth.signInWithPassword({ email: $("loginEmail").value.trim(), password: $("loginParola").value });
+  if (error){ $("loginEroare").textContent = "Email sau parolă greșite."; return; }
+  utilizator = data.user; $("ecranLogin").classList.add("ascuns"); arataApp();
+}
+$("loginParola").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+async function logout(){ await sb.auth.signOut(); location.reload(); }
+
+function arataApp(){
+  $("ecranApp").classList.remove("ascuns");
+  construiesteFiltre();
+  incarcaFavorite().then(() => incarca());
+}
+
+function tab(nume){
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("activ", b.dataset.tab === nume));
+  ["licitatii","favorite","setari","surse"].forEach(t => $("tab-"+t).classList.toggle("ascuns", t !== nume));
+  if (nume === "favorite") arataFavorite();
+  if (nume === "setari") incarcaSetari();
+  if (nume === "surse") incarcaSurse();
+}
+
+/* ---------------- filtre ---------------- */
+function construiesteFiltre(){
+  const g = $("fGrup"); GRUPURI.forEach(x => g.insertAdjacentHTML("beforeend", `<option value="${esc(x)}">${esc(x.replace(/^\d\.\s*/,""))}</option>`));
+  const salvat = citeste("filtre", {});
+  if (salvat.text) $("fText").value = salvat.text;
+  if (salvat.perioada) $("fPerioada").value = salvat.perioada;
+  if (salvat.deLa) $("fDeLa").value = salvat.deLa;
+  if (salvat.panaLa) $("fPanaLa").value = salvat.panaLa;
+  if (salvat.grup) $("fGrup").value = salvat.grup;
+  if (salvat.extra) $("fExtra").value = salvat.extra;
+  judeteAlese = new Set(salvat.judete || []);
+  categorieAleasa = salvat.categorie || "";
+  $("fInterval").classList.toggle("ascuns", $("fPerioada").value !== "custom");
+  // lista judete
+  const m = $("mJudete");
+  m.innerHTML = `<button type="button" onclick="this.nextElementSibling.classList.toggle('ascuns')"></button>
+    <div class="lista ascuns">${JUDETE.map(j => `<label><input type="checkbox" value="${j}" ${judeteAlese.has(j)?"checked":""}> ${j}</label>`).join("")}
+    <label><input type="checkbox" value="__fara" ${judeteAlese.has("__fara")?"checked":""}> <i>fără județ detectat</i></label></div>`;
+  m.querySelectorAll("input").forEach(i => i.addEventListener("change", () => {
+    i.checked ? judeteAlese.add(i.value) : judeteAlese.delete(i.value); textJudete(); incarca();
+  }));
+  document.addEventListener("click", e => { if (!m.contains(e.target)) m.querySelector(".lista").classList.add("ascuns"); });
+  textJudete();
+  chipsCategorii({});
+}
+function textJudete(){
+  const b = $("mJudete").querySelector("button");
+  b.textContent = judeteAlese.size ? [...judeteAlese].map(j => j === "__fara" ? "fără județ" : j).join(", ") : "Toate județele";
+}
+function chipsCategorii(numere){
+  const total = Object.values(numere).reduce((a,b)=>a+b,0);
+  $("chipsCategorii").innerHTML = [["", "Toate", total], ...CATEGORII.map(c => [c, c, numere[c]||0])]
+    .map(([v, t, n]) => `<button class="chip ${categorieAleasa===v?"activ":""}" onclick="alegeCategorie('${esc(v)}')">${esc(t)} <small>${n||""}</small></button>`).join("");
+}
+function alegeCategorie(c){ categorieAleasa = c; incarca(); }
+function schimbaPerioada(){
+  const custom = $("fPerioada").value === "custom";
+  $("fInterval").classList.toggle("ascuns", !custom);
+  if (custom && !$("fDeLa").value){ const d = new Date(); d.setDate(d.getDate()-30); $("fDeLa").value = zi(d); $("fPanaLa").value = zi(new Date()); }
+  incarca();
+}
+function reseteazaFiltre(){
+  $("fText").value = ""; $("fPerioada").value = "60"; $("fGrup").value = ""; $("fExtra").value = "";
+  judeteAlese = new Set(); categorieAleasa = ""; $("fInterval").classList.add("ascuns");
+  $("mJudete").querySelectorAll("input").forEach(i => i.checked = false); textJudete(); incarca();
+}
+function incarcaIntarziat(){ clearTimeout(temporizare); temporizare = setTimeout(() => incarca(), 400); }
+
+function interval(){
+  let deLa, panaLa = null;
+  const p = $("fPerioada").value;
+  if (p === "custom"){ deLa = $("fDeLa").value || "2000-01-01"; panaLa = $("fPanaLa").value || null; }
+  else { const d = new Date(); d.setDate(d.getDate() - parseInt(p)); deLa = zi(d); }
+  return { deLa, panaLa };
+}
+
+function aplicaFiltre(q, cuCategorie = true){
+  const { deLa, panaLa } = interval();
+  // data publicarii daca o stim, altfel data la care a aparut in aplicatie
+  q = q.or(`data_publicare.gte.${deLa},and(data_publicare.is.null,prima_aparitie.gte.${deLa})`);
+  if (panaLa) q = q.or(`data_publicare.lte.${panaLa},and(data_publicare.is.null,prima_aparitie.lte.${panaLa}T23:59:59)`);
+  const t = $("fText").value.trim();
+  if (t) t.split(/\s+/).forEach(w => { q = q.ilike("titlu", `%${w.replace(/[%,()]/g,"")}%`); });
+  if (judeteAlese.size){
+    const j = [...judeteAlese].filter(x => x !== "__fara");
+    const parti = [];
+    if (j.length) parti.push(`judet.in.(${j.map(x => `"${x}"`).join(",")})`);
+    if (judeteAlese.has("__fara")) parti.push("judet.is.null");
+    q = q.or(parti.join(","));
+  }
+  if ($("fGrup").value) q = q.eq("grup", $("fGrup").value);
+  const ex = $("fExtra").value;
+  if (ex === "contact") q = q.or("telefon.not.is.null,email.not.is.null");
+  if (ex === "noi"){ const d = new Date(); d.setHours(0,0,0,0); q = q.gte("prima_aparitie", d.toISOString()); }
+  if (cuCategorie && categorieAleasa) q = q.eq("categorie", categorieAleasa);
+  return q;
+}
+
+async function incarca(maiMult = false){
+  stocheaza("filtre", { text: $("fText").value, perioada: $("fPerioada").value, deLa: $("fDeLa").value, panaLa: $("fPanaLa").value,
+    grup: $("fGrup").value, extra: $("fExtra").value, judete: [...judeteAlese], categorie: categorieAleasa });
+  if (!maiMult) afisate = 0;
+  const lista = $("listaLicitatii");
+  if (!maiMult){ lista.innerHTML = ""; $("infoRezultate").textContent = "Se încarcă…"; }
+  let q = aplicaFiltre(sb.from("lic_anunturi").select("*", { count: "exact" }))
+    .order("prima_aparitie", { ascending: false }).range(afisate, afisate + PAS - 1);
+  const { data, error, count } = await q;
+  if (error){ $("infoRezultate").textContent = "Eroare: " + error.message; return; }
+  afisate += data.length;
+  lista.insertAdjacentHTML("beforeend", data.map(card).join(""));
+  if (!afisate) lista.innerHTML = `<div class="gol">Nicio licitație pentru filtrele alese.</div>`;
+  $("infoRezultate").textContent = `${count ?? afisate} licitații` + (count > afisate ? ` (afișate ${afisate})` : "");
+  $("btnMaiMult").classList.toggle("ascuns", !(count > afisate));
+  if (!maiMult) numaraCategorii();
+}
+
+async function numaraCategorii(){
+  const { data } = await aplicaFiltre(sb.from("lic_anunturi").select("categorie"), false).limit(5000);
+  const n = {}; (data || []).forEach(r => n[r.categorie] = (n[r.categorie] || 0) + 1);
+  chipsCategorii(n);
+}
+
+/* ---------------- card ---------------- */
+function card(a){
+  const fav = favorite[a.id];
+  const azi = new Date(); azi.setHours(0,0,0,0);
+  const esteNou = new Date(a.prima_aparitie) >= azi;
+  const tel = (a.telefon || "").split(",").map(x => x.trim()).filter(Boolean);
+  const mail = (a.email || "").split(",").map(x => x.trim()).filter(Boolean);
+  const det = [
+    a.judet && `<span>📍 <b>${esc(a.judet)}</b></span>`,
+    `<span>Publicat: <b>${esc(a.publicat || fmtData(a.prima_aparitie))}</b></span>`,
+    a.termen && `<span>Termen: <b>${esc(a.termen)}</b></span>`,
+    a.valoare && `<span>Valoare: <b>${esc(a.valoare)}</b></span>`,
+    a.autoritate && `<span>${esc(a.autoritate)}</span>`,
+  ].filter(Boolean).join("");
+  return `<div class="card" style="border-left-color:${CULORI[a.categorie]||"#9e9e9e"}" id="c-${a.id}">
+    <button class="stea ${fav?"da":""}" title="Urmărește" onclick="comutaFavorit('${a.id}')">${fav?"★":"☆"}</button>
+    <div class="sus">
+      <span class="eticheta" style="background:${CULORI[a.categorie]||"#9e9e9e"};color:#fff">${esc(a.categorie||"")}</span>
+      <span class="eticheta">${esc(a.sursa)}</span>
+      ${esteNou ? `<span class="eticheta nou">NOU</span>` : ""}
+    </div>
+    <h3><a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.titlu)}</a></h3>
+    <div class="detalii">${det}</div>
+    ${a.descriere && a.descriere !== a.titlu ? `<div class="desc">${esc(a.descriere)}</div>` : ""}
+    <div class="contact">
+      ${tel.map(t => `<a href="tel:${esc(t)}">📞 ${esc(t)}</a>`).join("")}
+      ${mail.map(m => `<a href="mailto:${esc(m)}">✉️ ${esc(m)}</a>`).join("")}
+      <a href="${esc(a.link)}" target="_blank" rel="noopener">🔗 Deschide anunțul</a>
+    </div>
+    ${fav ? `<div class="nota"><textarea placeholder="Notițe (ex. am sunat, ofertă trimisă...)" onblur="salveazaNota('${a.id}', this.value)">${esc(fav.nota||"")}</textarea></div>` : ""}
+  </div>`;
+}
+
+/* ---------------- favorite ---------------- */
+async function incarcaFavorite(){
+  const { data } = await sb.from("lic_favorite").select("*, lic_anunturi(*)").order("creat_la", { ascending: false });
+  favorite = {}; (data || []).forEach(f => favorite[f.anunt_id] = f);
+  $("nrFav").textContent = Object.keys(favorite).length ? `(${Object.keys(favorite).length})` : "";
+}
+async function comutaFavorit(id){
+  if (favorite[id]){
+    if (favorite[id].nota && !confirm("Scoți licitația de la urmărite? Notițele se pierd.")) return;
+    await sb.from("lic_favorite").delete().eq("anunt_id", id);
+  } else {
+    await sb.from("lic_favorite").insert({ anunt_id: id, adaugat_de: utilizator?.email || null });
+  }
+  await incarcaFavorite();
+  reafiseazaCard(id);
+  if (!$("tab-favorite").classList.contains("ascuns")) arataFavorite();
+}
+async function reafiseazaCard(id){
+  const el = $("c-"+id); if (!el) return;
+  const { data } = await sb.from("lic_anunturi").select("*").eq("id", id).single();
+  if (data) el.outerHTML = card(data);
+}
+async function salveazaNota(id, nota){
+  await sb.from("lic_favorite").update({ nota }).eq("anunt_id", id);
+  if (favorite[id]) favorite[id].nota = nota;
+}
+async function arataFavorite(){
+  await incarcaFavorite();
+  const lista = Object.values(favorite).filter(f => f.lic_anunturi);
+  $("infoFav").textContent = lista.length ? `${lista.length} licitații urmărite` : "";
+  $("listaFavorite").innerHTML = lista.length ? lista.map(f => card(f.lic_anunturi)).join("")
+    : `<div class="gol">Nu urmărești nicio licitație. Apasă steluța ☆ de pe o licitație ca s-o adaugi aici.</div>`;
+}
+
+/* ---------------- setari ---------------- */
+let setariCurente = {};
+async function incarcaSetari(){
+  const { data, error } = await sb.from("lic_setari").select("date").eq("id", 1).single();
+  if (error){ $("setariMesaj").textContent = "Eroare: " + error.message; return; }
+  setariCurente = data.date || {};
+  $("sZile").value = setariCurente.zile_in_urma || 60;
+  $("sEmailActiv").checked = setariCurente.email_activ !== false;
+  $("sDest").value = (setariCurente.email_destinatari || []).join(", ");
+  const jud = new Set(setariCurente.judete_notificari || []), cat = new Set(setariCurente.categorii_notificari || []);
+  $("sJudete").innerHTML = JUDETE.map(j => `<label><input type="checkbox" value="${j}" ${jud.has(j)?"checked":""}> ${j}</label>`).join("");
+  $("sCategorii").innerHTML = CATEGORII.map(c => `<label><input type="checkbox" value="${esc(c)}" ${cat.has(c)?"checked":""}> ${esc(c)}</label>`).join("");
+  $("sExtra").value = (setariCurente.cuvinte_extra || []).join("\n");
+  $("sExcluse").value = (setariCurente.cuvinte_excluse || []).join("\n");
+}
+async function salveazaSetari(){
+  const linii = id => $(id).value.split("\n").map(x => x.trim()).filter(Boolean);
+  const date = { ...setariCurente,
+    zile_in_urma: Math.max(1, Math.min(365, parseInt($("sZile").value) || 60)),
+    email_activ: $("sEmailActiv").checked,
+    email_destinatari: $("sDest").value.split(/[,;\s]+/).map(x => x.trim()).filter(x => x.includes("@")),
+    judete_notificari: [...$("sJudete").querySelectorAll("input:checked")].map(i => i.value),
+    categorii_notificari: [...$("sCategorii").querySelectorAll("input:checked")].map(i => i.value),
+    cuvinte_extra: linii("sExtra"), cuvinte_excluse: linii("sExcluse") };
+  const { error } = await sb.from("lic_setari").update({ date, modificat_la: new Date().toISOString() }).eq("id", 1);
+  $("setariMesaj").innerHTML = error ? `<span class="err">Eroare: ${esc(error.message)}</span>` : `<span class="ok">Salvat ✓ — se aplică de la următoarea căutare.</span>`;
+  if (!error) setariCurente = date;
+}
+
+/* ---------------- surse ---------------- */
+async function incarcaSurse(){
+  const { data, error } = await sb.from("lic_surse_stare").select("*").order("grup").order("nume");
+  if (error){ $("tabelSurse").innerHTML = `<tr><td class="err">${esc(error.message)}</td></tr>`; return; }
+  $("tabelSurse").innerHTML = `<tr><th>Sursă</th><th>Grup</th><th>Rezultate</th><th>Stare</th><th>Ultima căutare</th></tr>` +
+    (data || []).map(s => {
+      const cls = !String(s.stare).startsWith("OK") ? "err" : (s.rezultate ? "ok" : "atent");
+      const txt = !String(s.stare).startsWith("OK") ? s.stare : (s.rezultate ? "OK" : "OK – 0 rezultate");
+      return `<tr><td>${esc(s.nume)}</td><td>${esc((s.grup||"").replace(/^\d\.\s*/,""))}</td><td>${s.rezultate ?? ""}</td>
+        <td class="${cls}">${esc(txt)}</td><td>${s.ultima_rulare ? new Date(s.ultima_rulare).toLocaleString("ro-RO") : ""}</td></tr>`;
+    }).join("");
+}
+
+porneste();
+</script>
+</body>
+</html>

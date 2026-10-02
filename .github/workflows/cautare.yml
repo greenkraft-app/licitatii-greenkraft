@@ -1,0 +1,56 @@
+name: Cautare licitatii
+
+on:
+  schedule:
+    - cron: "15 */2 * * *"     # la fiecare 2 ore (ora UTC)
+  workflow_dispatch:            # buton "Run workflow" pentru pornire manuala
+
+concurrency:
+  group: cautare-licitatii
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  cautare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: cautare/requirements.txt
+
+      - name: Instalare biblioteci
+        run: |
+          pip install -r cautare/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Cautare licitatii
+        working-directory: cautare
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PAROLA: ${{ secrets.SMTP_PAROLA }}
+          APP_URL: ${{ secrets.APP_URL }}
+        run: python cautare_licitatii.py
+
+      # GitHub opreste programarile dupa 60 de zile fara activitate in depozit;
+      # o data pe luna facem o mica actualizare ca sa ramana pornit.
+      - name: Pastreaza programarea activa
+        if: github.event_name == 'schedule'
+        run: |
+          if [ "$(date -u +%d)" = "01" ] && [ "$(date -u +%H)" -lt "2" ]; then
+            date -u > .ultima-activitate
+            git config user.name "licitatii-bot"
+            git config user.email "licitatii-bot@users.noreply.github.com"
+            git add .ultima-activitate
+            git commit -m "activitate lunara" && git push || true
+          fi
