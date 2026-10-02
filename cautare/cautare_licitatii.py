@@ -732,7 +732,9 @@ def completeaza_detalii(s, it):
 # ================================================================ Supabase
 class Supabase:
     def __init__(self, url, cheie):
-        self.url = url.rstrip("/") + "/rest/v1/"
+        # acceptam si adresa copiata cu "/rest/v1" la final
+        baza = re.sub(r"/rest/v1/?$", "", url.strip().rstrip("/"))
+        self.url = baza + "/rest/v1/"
         self.h = {"apikey": cheie, "Authorization": f"Bearer {cheie}", "Content-Type": "application/json"}
 
     def select(self, tabel, params):
@@ -740,6 +742,12 @@ class Supabase:
         while True:
             r = requests.get(self.url + tabel, params=params, timeout=60,
                              headers={**self.h, "Range": f"{start}-{start + 999}"})
+            if r.status_code == 404:
+                raise RuntimeError(
+                    f"Tabelul '{tabel}' nu exista in proiectul Supabase din SUPABASE_URL. "
+                    f"Ruleaza supabase.sql in SQL Editor-ul ACELUIASI proiect. Raspuns: {r.text[:200]}")
+            if r.status_code == 401:
+                raise RuntimeError("SUPABASE_SERVICE_KEY gresita (trebuie cheia service_role a aceluiasi proiect).")
             r.raise_for_status()
             bucata = r.json()
             rez += bucata
