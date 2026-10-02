@@ -174,7 +174,7 @@ th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--linie);verti
 <script>
 /* ============ CONFIGURARE: completeaza cu datele proiectului Supabase ============ */
 const SUPABASE_URL = "https://jlzlsmgngwdbqkvbcyau.supabase.co";
-const SUPABASE_ANON_KEY = "PUNE_AICI_CHEIA_ANON_PUBLIC";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpsemxzbWduZ3dkYnFrdmJjeWF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjE0MTQsImV4cCI6MjA5NDMzNzQxNH0.nQCfzZnr3WSu07-2-hn7GKkabxIs9JGBjfFENcccNwY";
 /* ================================================================================= */
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -195,13 +195,26 @@ function fmtData(iso){ if(!iso) return ""; const d = new Date(iso); return isNaN
 
 /* ---------------- autentificare ---------------- */
 async function porneste(){
+  if (SUPABASE_ANON_KEY.startsWith("PUNE_AICI")){
+    $("ecranLogin").classList.remove("ascuns");
+    $("loginEroare").textContent = "Lipsește cheia Supabase: completează SUPABASE_ANON_KEY în web/index.html.";
+    return;
+  }
   const { data } = await sb.auth.getSession();
   if (data.session){ utilizator = data.session.user; arataApp(); } else { $("ecranLogin").classList.remove("ascuns"); }
 }
 async function login(){
   $("loginEroare").textContent = "";
   const { data, error } = await sb.auth.signInWithPassword({ email: $("loginEmail").value.trim(), password: $("loginParola").value });
-  if (error){ $("loginEroare").textContent = "Email sau parolă greșite."; return; }
+  if (error){
+    const m = String(error.message || "");
+    $("loginEroare").textContent =
+      /invalid api key/i.test(m) ? "Cheia Supabase din index.html lipsește sau e greșită (SUPABASE_ANON_KEY)." :
+      /invalid login credentials/i.test(m) ? "Email sau parolă greșite." :
+      /email not confirmed/i.test(m) ? "Contul nu e confirmat. În Supabase > Authentication > Users, confirmă utilizatorul." :
+      "Eroare: " + m;
+    return;
+  }
   utilizator = data.user; $("ecranLogin").classList.add("ascuns"); arataApp();
 }
 $("loginParola").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
