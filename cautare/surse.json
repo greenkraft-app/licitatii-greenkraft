@@ -1,146 +1,763 @@
 {
   "_info": "Lista surselor. 'activ': false = sursa oprita. 'filtru_cuvinte': true = se pastreaza doar anunturile care contin cuvintele cheie; false = se trimit TOATE anunturile noi ale sursei (potrivit pentru lichidatori, care au putine anunturi). 'js': true = site dinamic, citit cu browser (Playwright).",
   "zile_in_urma": 60,
-
   "surse": [
-    {"id": "seap_proceduri", "grup": "1. Oficiale", "nume": "SEAP - proceduri", "tip": "seap_proceduri", "activ": true},
-    {"id": "seap_publicitate", "grup": "1. Oficiale", "nume": "SEAP - anunturi publicitate", "tip": "seap_publicitate", "activ": true},
-    {"id": "ted", "grup": "1. Oficiale", "nume": "TED Europa", "tip": "ted", "tari": ["ROU"], "activ": true},
-    {"id": "unpir_insolventa", "grup": "1. Oficiale", "nume": "licitatii-insolventa.ro (UNPIR)", "tip": "unpir_insolventa", "activ": true},
-    {"id": "unpir_online", "grup": "1. Oficiale", "nume": "UNPIR - Licitatii Online", "activ": true,
-     "url": "https://www.licitatii-unpir.ro/",
-     "link_regex": "licitatii-unpir\\.ro/[a-z0-9\\-]+/[a-z0-9\\-]+/[^/?#]+/?$", "filtru_cuvinte": false},
-    {"id": "repes", "grup": "1. Oficiale", "nume": "REPES / UNEJ - executari silite", "activ": true, "js": true,
-     "url": "https://www.unejr.ro/repes/", "alte_domenii": true, "filtru_cuvinte": true},
-    {"id": "brm", "grup": "1. Oficiale", "nume": "BRM - Bursa Romana de Marfuri", "activ": true,
-     "url": "https://brm.ro/piata-licitatiilor/", "mod": "tabel", "filtru_cuvinte": false},
-    {"id": "licitatia_ro", "grup": "1. Oficiale", "nume": "licitatia.ro - vanzari", "tip": "licitatia_ro", "pagini": 2, "activ": true},
-    {"id": "anaf_elicitatii", "grup": "1. Oficiale", "nume": "ANAF eLicitatii", "activ": true,
-     "url": [
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/aparatura-electronica",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/articole-electrice",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/tehnica-de-calcul",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/utilaje-si-echipamente-industriale",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/masini-si-unelte",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/mijloace-de-transport-aerian-feroviar-si-maritim",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/autovehicule",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/autovehicule?pagina=2",
-       "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-imobile/hale-si-depozite"
-     ],
-     "link_regex": "/publicitate/produs/", "filtru_cuvinte": false},
-    {"id": "anaf_sechestrate", "grup": "1. Oficiale", "nume": "ANAF - bunuri sechestrate (DGRFP)", "activ": true,
-     "url": [
-       "https://www.anaf.ro/anaf/internet/Bucuresti/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Brasov/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Cluj/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Craiova/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Galati/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Iasi/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Ploiesti/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/Timisoara/anunturi/valorif_bunuri/bunuri_sechestrate",
-       "https://www.anaf.ro/anaf/internet/MariContribuabili/anunturi/valorif_bunuri/bunuri_sechestrate"
-     ],
-     "link_regex": "\\.pdf|/anunturi/valorif_bunuri/.+/.+", "filtru_cuvinte": true},
-    {"id": "bpi_onrc", "grup": "1. Oficiale", "nume": "BPI / ONRC - monitorizare insolvente", "activ": false,
-     "nota": "Portal cu abonament platit si fara anunturi de vanzare; oprit."},
-
-    {"id": "citr", "grup": "2. Lichidatori", "nume": "CITR vanzari", "tip": "citr", "activ": true},
-    {"id": "euro_insol", "grup": "2. Lichidatori", "nume": "Euro Insol", "activ": true,
-     "url": "https://www.euroinsol.eu/licitatii", "filtru_cuvinte": false},
-    {"id": "rovigo", "grup": "2. Lichidatori", "nume": "Rovigo SPRL", "activ": true,
-     "url": "https://rovigo.ro/licitatii-insolventa/", "link_regex": "/licitatii-viitoare/[^/]+/?$", "filtru_cuvinte": false},
-    {"id": "sierra", "grup": "2. Lichidatori", "nume": "Sierra Quadrant", "activ": true,
-     "url": "https://licitatii.sierraquadrant.ro/",
-     "link_regex": "licitatii\\.sierraquadrant\\.ro/[a-z0-9\\-]+/[a-z0-9\\-]+/[^/?#]+/?$", "filtru_cuvinte": false},
-    {"id": "turmac", "grup": "2. Lichidatori", "nume": "Turmac Insolvency", "activ": true,
-     "url": ["https://www.turmacinsolvency.ro/vanzari-active-insolventa/"],
-     "link_regex": "turmacinsolvency\\.ro/20\\d\\d/\\d\\d/\\d\\d/", "filtru_cuvinte": false},
-    {"id": "ri_group", "grup": "2. Lichidatori", "nume": "R&I Group", "activ": true,
-     "url": ["https://ri-group.ro/publicatii-de-vanzare/", "https://ri-group.ro/echipamente-si-utilaje/",
-             "https://ri-group.ro/mijloace-de-transport/", "https://ri-group.ro/imobile/"], "filtru_cuvinte": false},
-    {"id": "prime_insolv", "grup": "2. Lichidatori", "nume": "Prime Insolv Practice", "activ": true,
-     "url": "https://primeinsolv.ro/category/valorificari-bunuri/", "filtru_cuvinte": false},
-    {"id": "continuum", "grup": "2. Lichidatori", "nume": "Continuum SPRL", "activ": true,
-     "url": "https://www.continuumsprl.ro/active-si-licitatii/", "alte_domenii": true, "filtru_cuvinte": false},
-    {"id": "trust", "grup": "2. Lichidatori", "nume": "Specialists Trust Insolvency", "activ": true,
-     "url": ["https://trust-insolventa.ro/licitatii/", "https://trust-insolventa.ro/licitatii/page/2/"],
-     "link_regex": "trust-insolventa\\.ro/produs/", "filtru_cuvinte": false},
-    {"id": "lrj", "grup": "2. Lichidatori", "nume": "EuroBusiness LRJ", "activ": true,
-     "url": ["https://www.lrj.ro/vanzare/mobile--v3", "https://www.lrj.ro/vanzare/imobile--v2",
-             "https://www.lrj.ro/vanzare/publicatii-diverse--v1"], "filtru_cuvinte": false},
-    {"id": "mrl", "grup": "2. Lichidatori", "nume": "Management Reorganizare Lichidare (insolventa.ro)", "activ": true,
-     "url": ["https://www.insolventa.ro/", "https://www.insolventa.ro/comunicate/"],
-     "link_regex": "insolventa\\.ro/[^/]*(vanzare|licitatie|valorificare)[^/]*/?$", "filtru_cuvinte": false},
-    {"id": "consultant_insolventa", "grup": "2. Lichidatori", "nume": "Consultant Insolventa SPRL", "activ": true,
-     "url": "https://consultant-insolventa.ro/licitatii/", "filtru_cuvinte": false},
-    {"id": "agentia_insolventa", "grup": "2. Lichidatori", "nume": "Agentia de Insolventa SPRL", "activ": true,
-     "url": "https://www.agentiadeinsolventa.ro/licitatii.html", "link_regex": "/licitatii/\\d+", "filtru_cuvinte": false},
-    {"id": "spectrum", "grup": "2. Lichidatori", "nume": "Spectrum Insolvency", "activ": true,
-     "url": "https://www.licitatii-unpir.ro/index.php?dispatch=companies.view&company_id=18",
-     "link_regex": "licitatii-unpir\\.ro/[a-z0-9\\-]+/[a-z0-9\\-]+/[^/?#]+/?$", "filtru_cuvinte": false},
-    {"id": "gmr", "grup": "2. Lichidatori", "nume": "Global Money Recovery", "activ": true,
-     "url": ["https://www.gmrgroup.ro/licitatii", "https://www.gmrgroup.ro/active-in-vanzare"], "filtru_cuvinte": false},
-    {"id": "five_advisory", "grup": "2. Lichidatori", "nume": "Five Advisory", "activ": false,
-     "nota": "Nu am gasit un site propriu cu anunturi; anunturile lor apar pe UNPIR. Adauga 'url' daca il ai."},
-    {"id": "amg_consult", "grup": "2. Lichidatori", "nume": "AMG Consult", "activ": false,
-     "nota": "Nu am gasit un site propriu cu anunturi; anunturile lor apar pe UNPIR. Adauga 'url' daca il ai."},
-    {"id": "infinexa", "grup": "2. Lichidatori", "nume": "Infinexa", "activ": false,
-     "nota": "Nu am gasit un site propriu cu anunturi; anunturile lor apar pe UNPIR. Adauga 'url' daca il ai."},
-    {"id": "rominsolv", "grup": "2. Lichidatori", "nume": "RomInsolv", "activ": false,
-     "nota": "Nu am gasit un site propriu cu anunturi; publica pe UNPIR si Fairsolve. Adauga 'url' daca il ai."},
-
-    {"id": "vf", "grup": "3. Case de avocatura", "nume": "V.F. Insolventa / Voicu & Asociatii", "activ": true,
-     "url": ["https://www.vf.ro/vf-insolvency/anunturi-vanzari/",
-             "https://www.licitatii-unpir.ro/index.php?dispatch=companies.view&company_id=59"],
-     "alte_domenii": true, "filtru_cuvinte": false},
-    {"id": "gc_strategy", "grup": "3. Case de avocatura", "nume": "GC Strategy Insolv", "activ": true,
-     "url": "https://www.gcstrategy.ro/licitatiipublicatii-de-vanzare/", "filtru_cuvinte": false},
-    {"id": "artemis", "grup": "3. Case de avocatura", "nume": "Artemis Legal Insolvency", "activ": true,
-     "url": "https://www.artemislegalinsolvency.ro/anunturi/", "link_regex": "artemislegalinsolvency\\.ro/[^/]+/\\d+/?$",
-     "filtru_cuvinte": false},
-
-    {"id": "executarea", "grup": "4. Agregatoare", "nume": "Executarea.ro", "activ": true,
-     "url": ["https://executarea.ro/licitatii", "https://executarea.ro/licitatii?page=2", "https://executarea.ro/licitatii?page=3"],
-     "link_regex": "executarea\\.ro/licitatii/\\d+-", "filtru_cuvinte": true},
-    {"id": "executari_com", "grup": "4. Agregatoare", "nume": "Executari.com", "activ": true,
-     "url": ["https://www.executari.com/lista_bunuri.php?cat=82", "https://www.executari.com/lista_bunuri.php?cat=86",
-             "https://www.executari.com/lista_bunuri.php?cat=81", "https://www.executari.com/lista_bunuri.php?cat=13",
-             "https://www.executari.com/lista_bunuri.php?cat=12", "https://www.executari.com/lista_bunuri.php?cat=11",
-             "https://www.executari.com/lista_bunuri.php?cat=15"],
-     "filtru_cuvinte": false},
-    {"id": "ofertapublica", "grup": "4. Agregatoare", "nume": "OfertaPublica.ro", "activ": true, "js": true,
-     "url": ["https://ofertapublica.ro/licitatii", "https://ofertapublica.ro/licitatii?category=CAR"], "filtru_cuvinte": true},
-    {"id": "executarilicitatii", "grup": "4. Agregatoare", "nume": "ExecutariLicitatii.ro", "activ": true,
-     "url": "https://www.executarilicitatii.ro/", "link_regex": "/item/", "filtru_cuvinte": true},
-    {"id": "fairsolve", "grup": "4. Agregatoare", "nume": "Fairsolve", "activ": true, "js": true,
-     "url": "https://www.fairsolve.com/licitatii-online", "filtru_cuvinte": true},
-
-    {"id": "bej_ulman", "grup": "5. Executori", "nume": "BEJ Ulman Bogdan", "activ": true,
-     "url": "https://www.executorjudecatorescbucuresti.ro/licitatii/", "filtru_cuvinte": false},
-    {"id": "bej_popa", "grup": "5. Executori", "nume": "BEJ Laura Elena Popa", "activ": true,
-     "url": "https://www.executorlaurapopa.ro/index.php?page=licitatii", "filtru_cuvinte": false},
-    {"id": "bej_florea", "grup": "5. Executori", "nume": "BEJ Florea Mihai - Iasi", "activ": true,
-     "url": "https://www.executari-silite-iasi.ro/", "filtru_cuvinte": false},
-    {"id": "bej_bogatie", "grup": "5. Executori", "nume": "BEJ Bogatie Silvia Laura", "activ": false,
-     "nota": "Nu am gasit site propriu; publica pe REPES (sursa activa). Adauga 'url' daca il ai."},
-    {"id": "bej_beciu", "grup": "5. Executori", "nume": "BEJ Beciu Stelian", "activ": false,
-     "nota": "Nu am gasit site propriu; publica pe REPES (sursa activa). Adauga 'url' daca il ai."},
-    {"id": "bej_spineanu", "grup": "5. Executori", "nume": "BEJ Spineanu Marius-Eleodor", "activ": false,
-     "nota": "Nu am gasit site propriu; publica pe REPES (sursa activa). Adauga 'url' daca il ai."},
-    {"id": "cej_bucuresti", "grup": "5. Executori", "nume": "CEJ Bucuresti", "activ": false,
-     "nota": "Director de executori, nu sursa de licitatii.", "url": "https://cejbuc.ro/"},
-
-    {"id": "azitis", "grup": "6. Platforme industriale", "nume": "Azitis", "activ": true,
-     "url": "https://www.azitis.com/licitatii", "link_regex": "azitis\\.com/licitatie/", "filtru_cuvinte": false},
-    {"id": "surplex", "grup": "6. Platforme industriale", "nume": "Surplex Romania", "activ": true,
-     "url": "https://www.surplex.com/ro/auctions", "link_regex": "/ro/a/", "contine": ["romania"], "filtru_cuvinte": false},
-    {"id": "apex", "grup": "6. Platforme industriale", "nume": "Apex Auctions Romania", "activ": true,
-     "url": "https://www.apexauctions.ro/current-auctions/", "link_regex": "apexauctions\\.ro/auction/",
-     "contine": ["romania"], "filtru_cuvinte": false},
-    {"id": "troostwijk", "grup": "6. Platforme industriale", "nume": "Troostwijk Auctions", "activ": true,
-     "url": "https://www.troostwijkauctions.com/ro/auctions", "link_regex": "/ro/a/", "contine": ["romania"],
-     "filtru_cuvinte": false},
-    {"id": "machineryzone", "grup": "6. Platforme industriale", "nume": "MachineryZone Romania", "activ": false,
-     "nota": "Marketplace, nu licitatii.", "url": "https://www.machineryzone.ro/"}
+    {
+      "id": "seap_proceduri",
+      "grup": "1. Oficiale",
+      "nume": "SEAP - proceduri",
+      "tip": "seap_proceduri",
+      "activ": true
+    },
+    {
+      "id": "seap_publicitate",
+      "grup": "1. Oficiale",
+      "nume": "SEAP - anunturi publicitate",
+      "tip": "seap_publicitate",
+      "activ": true
+    },
+    {
+      "id": "ted",
+      "grup": "1. Oficiale",
+      "nume": "TED Europa",
+      "tip": "ted",
+      "tari": [
+        "ROU"
+      ],
+      "activ": true
+    },
+    {
+      "id": "unpir_insolventa",
+      "grup": "1. Oficiale",
+      "nume": "licitatii-insolventa.ro (UNPIR)",
+      "tip": "unpir_insolventa",
+      "activ": true
+    },
+    {
+      "id": "unpir_online",
+      "grup": "1. Oficiale",
+      "nume": "UNPIR - Licitatii Online",
+      "activ": true,
+      "url": "https://www.licitatii-unpir.ro/",
+      "link_regex": "licitatii-unpir\\.ro/[a-z0-9\\-]+/[a-z0-9\\-]+/[^/?#]+/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "repes",
+      "grup": "1. Oficiale",
+      "nume": "REPES / UNEJ - executari silite",
+      "activ": true,
+      "js": true,
+      "url": "https://www.unejr.ro/repes/",
+      "alte_domenii": true,
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "brm",
+      "grup": "1. Oficiale",
+      "nume": "BRM - Bursa Romana de Marfuri",
+      "activ": true,
+      "url": "https://brm.ro/piata-licitatiilor/",
+      "mod": "tabel",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "licitatia_ro",
+      "grup": "1. Oficiale",
+      "nume": "licitatia.ro - vanzari",
+      "tip": "licitatia_ro",
+      "pagini": 2,
+      "activ": true
+    },
+    {
+      "id": "anaf_elicitatii",
+      "grup": "1. Oficiale",
+      "nume": "ANAF eLicitatii",
+      "activ": true,
+      "url": [
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/aparatura-electronica",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/articole-electrice",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/tehnica-de-calcul",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/utilaje-si-echipamente-industriale",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/masini-si-unelte",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/mijloace-de-transport-aerian-feroviar-si-maritim",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/autovehicule",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-mobile/autovehicule?pagina=2",
+        "https://elicitatii.anaf.ro/publicitate/categorii/bunuri-imobile/hale-si-depozite"
+      ],
+      "link_regex": "/publicitate/produs/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "anaf_sechestrate",
+      "grup": "1. Oficiale",
+      "nume": "ANAF - bunuri sechestrate (DGRFP)",
+      "activ": true,
+      "url": [
+        "https://www.anaf.ro/anaf/internet/Bucuresti/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Brasov/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Cluj/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Craiova/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Galati/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Iasi/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Ploiesti/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/Timisoara/anunturi/valorif_bunuri/bunuri_sechestrate",
+        "https://www.anaf.ro/anaf/internet/MariContribuabili/anunturi/valorif_bunuri/bunuri_sechestrate"
+      ],
+      "link_regex": "\\.pdf|/anunturi/valorif_bunuri/.+/.+",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "bpi_onrc",
+      "grup": "1. Oficiale",
+      "nume": "BPI / ONRC - monitorizare insolvente",
+      "activ": false,
+      "nota": "Portal cu abonament platit si fara anunturi de vanzare; oprit."
+    },
+    {
+      "id": "citr",
+      "grup": "2. Lichidatori",
+      "nume": "CITR vanzari",
+      "tip": "citr",
+      "activ": true
+    },
+    {
+      "id": "euro_insol",
+      "grup": "2. Lichidatori",
+      "nume": "Euro Insol",
+      "activ": true,
+      "url": "https://www.euroinsol.eu/licitatii",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "rovigo",
+      "grup": "2. Lichidatori",
+      "nume": "Rovigo SPRL",
+      "activ": true,
+      "url": "https://rovigo.ro/licitatii-insolventa/",
+      "link_regex": "/licitatii-viitoare/[^/]+/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "sierra",
+      "grup": "2. Lichidatori",
+      "nume": "Sierra Quadrant",
+      "activ": true,
+      "url": "https://licitatii.sierraquadrant.ro/",
+      "link_regex": "licitatii\\.sierraquadrant\\.ro/[a-z0-9\\-]+/[a-z0-9\\-]+/[^/?#]+/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "turmac",
+      "grup": "2. Lichidatori",
+      "nume": "Turmac Insolvency",
+      "activ": true,
+      "url": [
+        "https://www.turmacinsolvency.ro/vanzari-active-insolventa/"
+      ],
+      "link_regex": "turmacinsolvency\\.ro/20\\d\\d/\\d\\d/\\d\\d/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "ri_group",
+      "grup": "2. Lichidatori",
+      "nume": "R&I Group",
+      "activ": true,
+      "url": [
+        "https://ri-group.ro/publicatii-de-vanzare/",
+        "https://ri-group.ro/echipamente-si-utilaje/",
+        "https://ri-group.ro/mijloace-de-transport/",
+        "https://ri-group.ro/imobile/"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "prime_insolv",
+      "grup": "2. Lichidatori",
+      "nume": "Prime Insolv Practice",
+      "activ": true,
+      "url": "https://primeinsolv.ro/category/valorificari-bunuri/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "continuum",
+      "grup": "2. Lichidatori",
+      "nume": "Continuum SPRL",
+      "activ": true,
+      "url": "https://www.continuumsprl.ro/active-si-licitatii/",
+      "alte_domenii": true,
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "trust",
+      "grup": "2. Lichidatori",
+      "nume": "Specialists Trust Insolvency",
+      "activ": true,
+      "url": [
+        "https://trust-insolventa.ro/licitatii/",
+        "https://trust-insolventa.ro/licitatii/page/2/"
+      ],
+      "link_regex": "trust-insolventa\\.ro/produs/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "lrj",
+      "grup": "2. Lichidatori",
+      "nume": "EuroBusiness LRJ",
+      "activ": true,
+      "url": [
+        "https://www.lrj.ro/vanzare/mobile--v3",
+        "https://www.lrj.ro/vanzare/imobile--v2",
+        "https://www.lrj.ro/vanzare/publicatii-diverse--v1"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "mrl",
+      "grup": "2. Lichidatori",
+      "nume": "Management Reorganizare Lichidare (insolventa.ro)",
+      "activ": true,
+      "url": [
+        "https://www.insolventa.ro/",
+        "https://www.insolventa.ro/comunicate/"
+      ],
+      "link_regex": "insolventa\\.ro/[^/]*(vanzare|licitatie|valorificare)[^/]*/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "consultant_insolventa",
+      "grup": "2. Lichidatori",
+      "nume": "Consultant Insolventa SPRL",
+      "activ": true,
+      "url": "https://consultant-insolventa.ro/licitatii/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "agentia_insolventa",
+      "grup": "2. Lichidatori",
+      "nume": "Agentia de Insolventa SPRL",
+      "activ": true,
+      "url": "https://www.agentiadeinsolventa.ro/licitatii.html",
+      "link_regex": "/licitatii/\\d+",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "spectrum",
+      "grup": "2. Lichidatori",
+      "nume": "Spectrum Insolvency",
+      "activ": true,
+      "url": "https://www.licitatii-unpir.ro/index.php?dispatch=companies.view&company_id=18",
+      "link_regex": "licitatii-unpir\\.ro/[a-z0-9\\-]+/[a-z0-9\\-]+/[^/?#]+/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "gmr",
+      "grup": "2. Lichidatori",
+      "nume": "Global Money Recovery",
+      "activ": true,
+      "url": [
+        "https://www.gmrgroup.ro/licitatii",
+        "https://www.gmrgroup.ro/active-in-vanzare"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "five_advisory",
+      "grup": "2. Lichidatori",
+      "nume": "Five Advisory",
+      "activ": false,
+      "nota": "Nu am gasit un site propriu cu anunturi; anunturile lor apar pe UNPIR. Adauga 'url' daca il ai."
+    },
+    {
+      "id": "amg_consult",
+      "grup": "2. Lichidatori",
+      "nume": "AMG Consult",
+      "activ": false,
+      "nota": "Nu am gasit un site propriu cu anunturi; anunturile lor apar pe UNPIR. Adauga 'url' daca il ai."
+    },
+    {
+      "id": "infinexa",
+      "grup": "2. Lichidatori",
+      "nume": "Infinexa",
+      "activ": false,
+      "nota": "Nu am gasit un site propriu cu anunturi; anunturile lor apar pe UNPIR. Adauga 'url' daca il ai."
+    },
+    {
+      "id": "rominsolv",
+      "grup": "2. Lichidatori",
+      "nume": "RomInsolv",
+      "activ": false,
+      "nota": "Nu am gasit un site propriu cu anunturi; publica pe UNPIR si Fairsolve. Adauga 'url' daca il ai."
+    },
+    {
+      "id": "vf",
+      "grup": "3. Case de avocatura",
+      "nume": "V.F. Insolventa / Voicu & Asociatii",
+      "activ": true,
+      "url": [
+        "https://www.vf.ro/vf-insolvency/anunturi-vanzari/",
+        "https://www.licitatii-unpir.ro/index.php?dispatch=companies.view&company_id=59"
+      ],
+      "alte_domenii": true,
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "gc_strategy",
+      "grup": "3. Case de avocatura",
+      "nume": "GC Strategy Insolv",
+      "activ": true,
+      "url": "https://www.gcstrategy.ro/licitatiipublicatii-de-vanzare/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "artemis",
+      "grup": "3. Case de avocatura",
+      "nume": "Artemis Legal Insolvency",
+      "activ": true,
+      "url": "https://www.artemislegalinsolvency.ro/anunturi/",
+      "link_regex": "artemislegalinsolvency\\.ro/[^/]+/\\d+/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "executarea",
+      "grup": "4. Agregatoare",
+      "nume": "Executarea.ro",
+      "activ": true,
+      "url": [
+        "https://executarea.ro/licitatii",
+        "https://executarea.ro/licitatii?page=2",
+        "https://executarea.ro/licitatii?page=3"
+      ],
+      "link_regex": "executarea\\.ro/licitatii/\\d+-",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "executari_com",
+      "grup": "4. Agregatoare",
+      "nume": "Executari.com",
+      "activ": true,
+      "url": [
+        "https://www.executari.com/lista_bunuri.php?cat=82",
+        "https://www.executari.com/lista_bunuri.php?cat=86",
+        "https://www.executari.com/lista_bunuri.php?cat=81",
+        "https://www.executari.com/lista_bunuri.php?cat=13",
+        "https://www.executari.com/lista_bunuri.php?cat=12",
+        "https://www.executari.com/lista_bunuri.php?cat=11",
+        "https://www.executari.com/lista_bunuri.php?cat=15"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "ofertapublica",
+      "grup": "4. Agregatoare",
+      "nume": "OfertaPublica.ro",
+      "activ": true,
+      "js": true,
+      "url": [
+        "https://ofertapublica.ro/licitatii",
+        "https://ofertapublica.ro/licitatii?category=CAR"
+      ],
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "executarilicitatii",
+      "grup": "4. Agregatoare",
+      "nume": "ExecutariLicitatii.ro",
+      "activ": true,
+      "url": "https://www.executarilicitatii.ro/",
+      "link_regex": "/item/",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "fairsolve",
+      "grup": "4. Agregatoare",
+      "nume": "Fairsolve",
+      "activ": true,
+      "js": true,
+      "url": "https://www.fairsolve.com/licitatii-online",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "bej_ulman",
+      "grup": "5. Executori",
+      "nume": "BEJ Ulman Bogdan",
+      "activ": true,
+      "url": "https://www.executorjudecatorescbucuresti.ro/licitatii/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "bej_popa",
+      "grup": "5. Executori",
+      "nume": "BEJ Laura Elena Popa",
+      "activ": true,
+      "url": "https://www.executorlaurapopa.ro/index.php?page=licitatii",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "bej_florea",
+      "grup": "5. Executori",
+      "nume": "BEJ Florea Mihai - Iasi",
+      "activ": true,
+      "url": "https://www.executari-silite-iasi.ro/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "bej_bogatie",
+      "grup": "5. Executori",
+      "nume": "BEJ Bogatie Silvia Laura",
+      "activ": false,
+      "nota": "Nu am gasit site propriu; publica pe REPES (sursa activa). Adauga 'url' daca il ai."
+    },
+    {
+      "id": "bej_beciu",
+      "grup": "5. Executori",
+      "nume": "BEJ Beciu Stelian",
+      "activ": false,
+      "nota": "Nu am gasit site propriu; publica pe REPES (sursa activa). Adauga 'url' daca il ai."
+    },
+    {
+      "id": "bej_spineanu",
+      "grup": "5. Executori",
+      "nume": "BEJ Spineanu Marius-Eleodor",
+      "activ": false,
+      "nota": "Nu am gasit site propriu; publica pe REPES (sursa activa). Adauga 'url' daca il ai."
+    },
+    {
+      "id": "cej_bucuresti",
+      "grup": "5. Executori",
+      "nume": "CEJ Bucuresti",
+      "activ": false,
+      "nota": "Director de executori, nu sursa de licitatii.",
+      "url": "https://cejbuc.ro/"
+    },
+    {
+      "id": "azitis",
+      "grup": "6. Platforme industriale",
+      "nume": "Azitis",
+      "activ": true,
+      "url": "https://www.azitis.com/licitatii",
+      "link_regex": "azitis\\.com/licitatie/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "surplex",
+      "grup": "6. Platforme industriale",
+      "nume": "Surplex Romania",
+      "activ": true,
+      "url": "https://www.surplex.com/ro/auctions",
+      "link_regex": "/ro/a/",
+      "contine": [
+        "romania"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "apex",
+      "grup": "6. Platforme industriale",
+      "nume": "Apex Auctions Romania",
+      "activ": true,
+      "url": "https://www.apexauctions.ro/current-auctions/",
+      "link_regex": "apexauctions\\.ro/auction/",
+      "contine": [
+        "romania"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "troostwijk",
+      "grup": "6. Platforme industriale",
+      "nume": "Troostwijk Auctions",
+      "activ": true,
+      "url": "https://www.troostwijkauctions.com/ro/auctions",
+      "link_regex": "/ro/a/",
+      "contine": [
+        "romania"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "machineryzone",
+      "grup": "6. Platforme industriale",
+      "nume": "MachineryZone Romania",
+      "activ": false,
+      "nota": "Marketplace, nu licitatii.",
+      "url": "https://www.machineryzone.ro/"
+    },
+    {
+      "id": "elcen",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "ELCEN - Electrocentrale Bucuresti",
+      "activ": true,
+      "url": "https://www.elcen.ro/anunturi-vanzari-2/",
+      "link_regex": "elcen\\.ro/(anunturi-vanzari-2/attachment/|wp-content/uploads/.+\\.pdf)",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "cet_palas",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "CET Palas Constanta",
+      "activ": true,
+      "url": "https://cetpalas.ro/anunturi/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "ce_oltenia",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "Complexul Energetic Oltenia",
+      "activ": true,
+      "url": "https://www.ceoltenia.ro/en/business/aprovizionare-si-comercializare/anunturi-achizitii/",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "transelectrica",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "Transelectrica",
+      "activ": true,
+      "url": [
+        "https://www.transelectrica.ro/ro/web/tel/noutati",
+        "https://www.transelectrica.ro/ro/web/tel/achizitii-publice"
+      ],
+      "link_regex": "transelectrica\\.ro/.*(anunt|valorific|licitati)",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "stb",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "STB - Societatea de Transport Bucuresti",
+      "activ": true,
+      "url": "https://www.stbsa.ro/licitatie_new",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "cfr_sa",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "CFR SA - valorificare deseuri",
+      "activ": true,
+      "url": "https://cfr.ro/categorie/valorificare-deseuri/",
+      "link_regex": "cfr\\.ro/(valorific|invitati|anunt)[^/]*/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "cfr_calatori",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "CFR Calatori - anunturi vanzare",
+      "activ": true,
+      "url": [
+        "https://www.cfrcalatori.ro/anunturi-vanzare/",
+        "https://www.cfrcalatori.ro/anunturi-vanzare/page/2/"
+      ],
+      "link_regex": "cfrcalatori\\.ro/anunturi-vanzare/(?!page/)[^/]+/?$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "cfr_marfa",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "CFR Marfa",
+      "activ": true,
+      "url": [
+        "https://cfrmarfa.com/anunturi/",
+        "https://cfrmarfa.com/licitatii-vagoane/"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "romtehnica",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "Romtehnica - licitatii armata (MApN)",
+      "activ": true,
+      "url": [
+        "https://www.romtehnica.com.ro/site/category/anunturi-publicitare/",
+        "https://www.romtehnica.com.ro/site/en/category/anunturi-publicitare/",
+        "https://www.romtehnica.com.ro/site/valorificare-la-intern/"
+      ],
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "anabi",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "ANABI - bunuri indisponibilizate",
+      "activ": true,
+      "url": [
+        "https://anabi.just.ro/categorii-bunuri/valorificari-bunuri-mobile",
+        "https://anabi.just.ro/categorii-bunuri/valorificari-bunuri-mobile?page=2"
+      ],
+      "link_regex": "anabi\\.just\\.ro/bunuri/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "dgitl_s3",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "DGITL Sector 3 - valorificari",
+      "activ": true,
+      "url": "https://www.ditl3.ro/anunturi/valorificari.aspx",
+      "alte_domenii": false,
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "dgitl_s6",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "DGITL Sector 6 - valorificare/licitatii",
+      "activ": true,
+      "url": "https://taxelocale6.ro/impozite_taxe_primariesector6/valorificare-licitatii",
+      "link_regex": "\\.pdf$",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "min_economiei",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "Ministerul Economiei",
+      "activ": true,
+      "url": "https://economie.gov.ro/",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "mai_dali",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "MAI - DALI (Directia Asigurare Logistica Integrata)",
+      "activ": false,
+      "nota": "Nu are pagina publica de vanzari; vanzarile MAI apar pe ANAF eLicitatii, BRM, SEAP si licitatia.ro (surse active). Adauga adresa din tab-ul Surse daca o ai."
+    },
+    {
+      "id": "mai_dgp",
+      "grup": "8. Institutii si companii de stat",
+      "nume": "MAI - DGP",
+      "activ": false,
+      "nota": "Nu am gasit pagina publica de vanzari; vanzarile apar pe ANAF eLicitatii / BRM / licitatia.ro. Adauga adresa din tab-ul Surse daca o ai."
+    },
+    {
+      "id": "banca_bcr",
+      "grup": "9. Banci",
+      "nume": "BCR - imobile si bunuri in executare",
+      "activ": true,
+      "js": true,
+      "url": "https://vanzari.bcr.ro/ro/executare",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "banca_brd",
+      "grup": "9. Banci",
+      "nume": "BRD - bunuri in executare",
+      "activ": true,
+      "url": [
+        "https://vanzari.brd.ro/",
+        "https://vanzari.brd.ro/bunuri/list/v1-c1"
+      ],
+      "link_regex": "vanzari\\.brd\\.ro/bunuri/(?!list)",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "banca_bt",
+      "grup": "9. Banci",
+      "nume": "Banca Transilvania - proprietati si insolvente",
+      "activ": true,
+      "url": [
+        "https://vanzari.bancatransilvania.ro/proprietati-bt",
+        "https://vanzari.bancatransilvania.ro/insolvente"
+      ],
+      "link_regex": "vanzari\\.bancatransilvania\\.ro/anunt/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "banca_cec",
+      "grup": "9. Banci",
+      "nume": "CEC Bank - vanzari",
+      "activ": true,
+      "url": [
+        "https://www.cec.ro/vanzari",
+        "https://www.cec.ro/vanzari?page=1"
+      ],
+      "link_regex": "cec\\.ro/anunturi/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "evrika",
+      "grup": "2. Lichidatori",
+      "nume": "Evrika Insolvency",
+      "activ": true,
+      "url": "https://www.evrikainsolvency.ro/licitatii/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "insolvent_consult",
+      "grup": "2. Lichidatori",
+      "nume": "Insolvent Consult IPURL",
+      "activ": true,
+      "url": "https://insolventconsult.recoilshop.ro/category/licitatii/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "business_recovery",
+      "grup": "2. Lichidatori",
+      "nume": "Business Recovery",
+      "activ": true,
+      "url": "http://www.business-recovery.ro/vanzari/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "psm_insolvency",
+      "grup": "2. Lichidatori",
+      "nume": "PSM Insolvency",
+      "activ": true,
+      "url": "https://psminsolvency.ro/licitatii-insolventa/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "expert_insolventa",
+      "grup": "2. Lichidatori",
+      "nume": "Expert Insolventa",
+      "activ": true,
+      "url": "https://expertinsolventa.ro/vanzari-licitatii-insolventa/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "centu",
+      "grup": "2. Lichidatori",
+      "nume": "Centu SPRL (lichidari-evaluari.ro)",
+      "activ": true,
+      "url": "https://lichidari-evaluari.ro/licitatii/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "admin_insolv",
+      "grup": "2. Lichidatori",
+      "nume": "Admin Insolv",
+      "activ": true,
+      "url": "https://www.admininsolv.ro/licitatii-vanzari-imobile-si-mobile",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "licitatii_lichidari",
+      "grup": "2. Lichidatori",
+      "nume": "Licitatii-Lichidari.ro",
+      "activ": true,
+      "url": "https://licitatii-lichidari.ro/",
+      "link_regex": "licitatii-lichidari\\.ro/20\\d\\d/",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "bdo",
+      "grup": "2. Lichidatori",
+      "nume": "BDO - valorificari de active",
+      "activ": true,
+      "url": "https://www.bdo.ro/ro-ro/microsites/comunicari-licitatii/valorificari-de-active",
+      "filtru_cuvinte": false
+    },
+    {
+      "id": "executari_insolvente",
+      "grup": "4. Agregatoare",
+      "nume": "Executari-Insolvente.ro",
+      "activ": true,
+      "url": "https://www.executari-insolvente.ro/index.php/ro/147/licitatii_promovate",
+      "filtru_cuvinte": true
+    },
+    {
+      "id": "valorificari_hub",
+      "grup": "4. Agregatoare",
+      "nume": "Valorificari.com (HUB national)",
+      "activ": true,
+      "js": true,
+      "url": "https://valorificari.com/",
+      "filtru_cuvinte": true
+    }
   ]
 }
